@@ -1,7 +1,5 @@
 "use client";
-import { SessionProvider, getSession, useSession } from "next-auth/react";
-import Head from "next/head";
-import { useRouter } from "next/router";
+
 import React, { useState } from "react";
 import TopNav from "./TopNav";
 

@@ -56,6 +56,7 @@ model User {
     accounts      Account[]
     sessions      Session[]
     bankAccounts  BankAccount[]
+    categories    Category[]
 }
 
 model VerificationToken {
@@ -67,26 +68,38 @@ model VerificationToken {
 }
 
 model BankAccount {
-    id              Int     @id @default(autoincrement())
+    id              Int             @id @default(autoincrement())
+    name            String?
     userId          String
     type            String
-    initBalance     Decimal @default(0)
-    User            User    @relation(fields: [userId], references: [id])
+    initBalance     Decimal         @default(0) @db.Decimal(20, 2)
+    createdDate     DateTime        @default(now())
+    expireDate      DateTime?
+    User            User            @relation(fields: [userId], references: [id])
     transactions    Transaction[]
 }
 
 model Transaction {
     id              Int             @id @default(autoincrement())
     accountId       Int
-    amount          Decimal
+    amount          Decimal         @db.Decimal(20, 2)
+    date            DateTime
     categoryId      Int?
     description     String?
+    createdDate     DateTime        @default(now())
+    removedDate     DateTime?
     BankAccount     BankAccount     @relation(fields: [accountId], references: [id])
     Category        Category?       @relation(fields: [categoryId], references: [id])
 }
 
 model Category {
     id              Int             @id  @default(autoincrement())
-    name            String
+    name            String          
+    type            String
+    custom          String?
+    createdDate     DateTime        @default(now())
+    removedDate     DateTime?
     transactions    Transaction[]
+    User            User?           @relation(fields: [custom], references: [id])
+    @@unique([name, type])
 }

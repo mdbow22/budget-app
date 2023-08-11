@@ -13,7 +13,7 @@ const Dashboard: NextPageWithLayout = () => {
         <Head>
             <title>Dashboard | {data?.user.name}</title>
         </Head>
-        <div className='p-4'>
+        <div className='p-5'>
             <h1 className='text-3xl font-bold'>{data?.user.name}'s Dashboard</h1>
         </div>
     </>
