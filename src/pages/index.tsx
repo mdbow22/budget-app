@@ -1,9 +1,37 @@
+import { GetServerSideProps, NextPage } from 'next';
+import { getServerSession } from 'next-auth';
 import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
+import { authOptions } from '~/server/auth';
 import { api } from "~/utils/api";
 
-export default function Home() {
+//how this should work: if !session => load homepage, if session => redirect to user dashboard
+//this can't happen until: sign in is set up, and dashboard page is built.
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+
+  const session = await getServerSession(context.req, context.res, authOptions);
+
+  if(session) {
+    return ({
+      redirect: {
+        destination: '/dashboard',
+        permanent: false,
+      },
+    })
+  }
+
+  return ({
+    props: {
+      authenticated: false,
+    }
+  })
+}
+
+
+const Home: NextPage = () => {
+
   const hello = api.example.hello.useQuery({ text: "from tRPC" });
 
   return (
@@ -50,12 +78,79 @@ export default function Home() {
           </div>
         </div>
       </main> */}
-      <main className='min-h-screen bg-base-100'>
-        <h1 className='text-3xl'>Insert Brand Name Here</h1>
+      <main className=" flex min-h-screen flex-col items-center bg-base-100">
+        <section className="flex h-1/2 justify-center overflow-hidden bg-base-200 shadow-md shadow-zinc-600/30">
+          <div className="grid w-2/3 grid-cols-2 overflow-hidden">
+            <div className="flex h-full flex-col justify-center">
+              <div>
+                <h1 className="text-4xl font-bold text-primary">
+                  Your Money, Your Way.
+                </h1>
+                <h2 className="text-lg">
+                  We put you back in control of organizing your money. People
+                  are more in tune with their finances, when they control how it
+                  looks from the description of what you bought, to the
+                  categories you want to use to organize everything.
+                </h2>
+              </div>
+
+              <div className="pt-5">
+                <button className="btn btn-primary rounded-full px-8 text-base-100 shadow active:shadow-inner"
+                  onClick={() => signIn()}
+                >
+                  Login
+                </button>
+              </div>
+            </div>
+            <div className="relative flex justify-center">
+              <div
+                className="mockup-phone border"
+                style={{ position: "relative", top: "50px" }}
+              >
+                <div className="camera" style={{ width: "117px" }}></div>
+                <div className="display">
+                  <div
+                    className="artboard artboard-demo phone-1"
+                    style={{ width: "250px", height: "444px" }}
+                  >
+                    Hi.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="w-full py-10">
+          <ul className="steps w-full pb-5">
+            <li className="step step-primary">
+              <div className="card mt-5 w-1/4 bg-base-200 shadow-md shadow-zinc-600/30">
+                Blah
+              </div>
+            </li>
+            <li className="step step-primary">
+              <div className="card w-1/4 bg-base-200 shadow-md shadow-zinc-600/30">
+                Blah
+              </div>
+            </li>
+            <li className="step step-primary">
+              <div className="card w-1/4 bg-base-200 shadow-md shadow-zinc-600/30">
+                Blah
+              </div>
+            </li>
+          </ul>
+        </section>
       </main>
+      <footer className="footer bg-secondary p-3 text-neutral-content">
+        <h1 className="w-full justify-center font-bold">
+          Copyright &copy; 2023
+        </h1>
+      </footer>
     </>
   );
 }
+
+export default Home;
 
 function AuthShowcase() {
   const { data: sessionData } = useSession();
@@ -80,3 +175,4 @@ function AuthShowcase() {
     </div>
   );
 }
+
