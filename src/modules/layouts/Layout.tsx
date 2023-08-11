@@ -26,7 +26,7 @@ const Layout: React.FC<{ children: any }> = ({ children }) => {
     <div className="drawer xl:drawer-open">
       <input id="my-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
-        <TopNav setChecked={setChecked} />
+        <TopNav setChecked={setChecked} checked={checked} />
         <main className="min-h-screen">{children}</main>
         <footer className="footer bg-secondary p-1 text-neutral-content">
           <h1 className="w-full justify-center font-bold">
@@ -35,14 +35,33 @@ const Layout: React.FC<{ children: any }> = ({ children }) => {
         </footer>
       </div>
       <div className="drawer-side">
-        <label htmlFor="my-drawer" className="drawer-overlay"></label>
-        <ul className="menu h-full w-80 bg-base-200 p-4 text-base-content">
-          {/* Sidebar content here */}
+        <label
+          htmlFor="my-drawer"
+          className="drawer-overlay"
+          onClick={() => setChecked((prev) => !prev)}
+        ></label>
+        <ul className="menu menu-lg h-full w-72 bg-base-200 text-base-content">
           <li>
-            <a>Sidebar Item 1</a>
+            <a>Dashboard</a>
           </li>
           <li>
-            <a>Sidebar Item 2</a>
+            <details open>
+              <summary>Accounts</summary>
+              <ul>
+                <li>
+                  <a>Checking</a>
+                </li>
+                <li>
+                  <a>Savings</a>
+                </li>
+              </ul>
+            </details>
+          </li>
+          <li>
+            <a>Budgets</a>
+          </li>
+          <li>
+            <a>Goals</a>
           </li>
         </ul>
       </div>
