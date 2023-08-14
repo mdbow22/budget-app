@@ -2,9 +2,12 @@
 
 import React, { useState } from "react";
 import TopNav from "./TopNav";
+import { api } from '~/utils/api';
 
 const Layout: React.FC<{ children: any }> = ({ children }) => {
   const [checked, setChecked] = useState(false);
+
+  const { data, isLoading } = api.accounts.getAllAccounts.useQuery({ includeBal: true })
   // if(status === 'loading') {
   //     return (
   //         <>
@@ -46,12 +49,15 @@ const Layout: React.FC<{ children: any }> = ({ children }) => {
             <details open>
               <summary>Accounts</summary>
               <ul>
-                <li>
-                  <a>Checking</a>
-                </li>
-                <li>
-                  <a>Savings</a>
-                </li>
+                {!isLoading && data?.map((account) => {
+                    return (
+                        <li key={account.id}>
+                            <a className='text-base justify-between'>
+                                <div>{account.name}</div><div>(${account.balance})</div>
+                            </a>
+                        </li>
+                    )
+                })}
               </ul>
             </details>
           </li>
