@@ -4,11 +4,21 @@ import { DateTime } from 'luxon';
 const prisma = new PrismaClient();
 
 const seedDB = async () => {
+
+  const fakeUser = await prisma.user.create({
+    data: {
+      name: 'standardCategory'
+    },
+    select: {
+      id: true,
+    }
+  })
+
   const newAccountId = await prisma.bankAccount.create({
     data: {
-      type: "credit",
-      name: "PNC Card",
-      initBalance: -4726.76,
+      type: "checking",
+      name: "PNC Checking",
+      initBalance: 8933.43,
       User: {
         connect: {
           id: "clla7inhp0000lfwo25z5bcyy",
@@ -22,24 +32,132 @@ const seedDB = async () => {
 
   const transactions = [
     {
-      amount: -225,
+      amount: 112.90,
+      date: DateTime.fromISO("2023-05-19").toJSDate(),
+      Category: {
+        connectOrCreate: {
+            where: {
+                name_type_custom: {
+                    name: "Other",
+                    type: 'credit',
+                    custom: fakeUser.id,
+                }
+              
+            },
+            create: {
+              name: "Other",
+              type: "credit",
+              User: {
+                connect: {
+                  id: fakeUser.id,
+                }
+              },
+            },
+          },
+      },
+      description: "Payment from Heph",
+      BankAccount: {
+        connect: {
+          id: newAccountId.id,
+        },
+      },
+      PayorPayee: {
+        connectOrCreate: {
+          where: {
+            thirdparty_userId: {
+              thirdparty: 'Hephaistion Kunkel',
+              userId: 'clla7inhp0000lfwo25z5bcyy',
+            }
+          },
+          create: {
+            thirdparty: 'Hephaistion Kunkel',
+            User: {
+              connect: {
+
+                  id: 'clla7inhp0000lfwo25z5bcyy'
+                
+              }
+            }
+          }
+        }
+      },
+    },
+    {
+      amount: 1664.62,
+      date: DateTime.fromISO("2023-05-26").toJSDate(),
+      Category: {
+        connectOrCreate: {
+            where: {
+                name_type_custom: {
+                    name: "Salary",
+                    type: 'credit',
+                    custom: fakeUser.id,
+                }
+              
+            },
+            create: {
+              name: "Salary",
+              type: "credit",
+              User: {
+                connect: {
+                  id: fakeUser.id,
+                }
+              },
+            },
+          },
+      },
+      description: "Paycheck",
+      BankAccount: {
+        connect: {
+          id: newAccountId.id,
+        },
+      },
+      PayorPayee: {
+        connectOrCreate: {
+          where: {
+            thirdparty_userId: {
+              thirdparty: 'KVC Health Systems',
+              userId: 'clla7inhp0000lfwo25z5bcyy',
+            }
+          },
+          create: {
+            thirdparty: 'KVC Health Systems',
+            User: {
+              connect: {
+
+                  id: 'clla7inhp0000lfwo25z5bcyy'
+                
+              }
+            }
+          }
+        }
+      },
+    },
+    {
+      amount: -61,
       date: DateTime.fromISO("2023-05-30").toJSDate(),
       Category: {
         connectOrCreate: {
             where: {
-                name_type: {
-                    name: "Health",
+                name_type_custom: {
+                    name: "Other",
                     type: 'debit',
+                    custom: fakeUser.id,
                 }
               
             },
             create: {
-              name: "Health",
+              name: "Other",
               type: "debit",
+              User: {
+                connect: {
+                  id: fakeUser.id,
+                }
+              },
             },
           },
       },
-      description: "Therapy",
+      description: "Payment to Heph",
       BankAccount: {
         connect: {
           id: newAccountId.id,
@@ -49,12 +167,12 @@ const seedDB = async () => {
         connectOrCreate: {
           where: {
             thirdparty_userId: {
-              thirdparty: 'Tyler Rogols',
+              thirdparty: 'Hephaistion Kunkel',
               userId: 'clla7inhp0000lfwo25z5bcyy',
             }
           },
           create: {
-            thirdparty: 'Tyler Rogols',
+            thirdparty: 'Hephaistion Kunkel',
             User: {
               connect: {
 
@@ -67,112 +185,30 @@ const seedDB = async () => {
       },
     },
     {
-      amount: -7.56,
+      amount: -4726.76,
       date: DateTime.fromISO("2023-05-31").toJSDate(),
       Category: {
         connectOrCreate: {
             where: {
-                name_type: {
-                    name: "Hobbies",
-                    type: "debit",
+                name_type_custom: {
+                    name: "Bills - Credit Card",
+                    type: 'debit',
+                    custom: fakeUser.id,
                 }
               
             },
             create: {
-              name: "Hobbies",
+              name: "Bills - Credit Card",
               type: "debit",
-            },
-          },
-      },
-      PayorPayee: {
-        connectOrCreate: {
-          where: {
-            thirdparty_userId: {
-              thirdparty: 'Railway',
-              userId: 'clla7inhp0000lfwo25z5bcyy',
-            }
-          },
-          create: {
-            thirdparty: 'Railway',
-            User: {
-              connect: {
-
-                  id: 'clla7inhp0000lfwo25z5bcyy'
-                
-              }
-            }
-          }
-        }
-      },
-      description: "Railway Subscription",
-      BankAccount: {
-        connect: {
-          id: newAccountId.id,
-        },
-      },
-    },
-    {
-      amount: -21.49,
-      date: DateTime.fromISO("2023-05-30").toJSDate(),
-      Category: {
-        connectOrCreate: {
-            where: {
-                name_type: {
-                    name: "Streaming Service",
-                    type: "debit",
+              User: {
+                connect: {
+                  id: fakeUser.id,
                 }
-            },
-            create: {
-              name: "Streaming Service",
-              type: "debit",
+              },
             },
           },
       },
-      description: "Hulu bill",
-      BankAccount: {
-        connect: {
-          id: newAccountId.id,
-        },
-      },
-      PayorPayee: {
-        connectOrCreate: {
-          where: {
-            thirdparty_userId: {
-              thirdparty: 'Hulu',
-              userId: 'clla7inhp0000lfwo25z5bcyy',
-            }
-          },
-          create: {
-            thirdparty: 'Hulu',
-            User: {
-              connect: {
-
-                  id: 'clla7inhp0000lfwo25z5bcyy'
-                
-              }
-            }
-          }
-        }
-      },
-    },
-    {
-      amount: 4726.76,
-      date: DateTime.fromISO("2023-05-31").toJSDate(),
-      Category: {
-        connectOrCreate: {
-          where: {
-            name_type: {
-                name: "Bills - Credit Card",
-                type: "debit",
-            }
-          },
-          create: {
-            name: "Bills - Credit Card",
-            type: "debit",
-          },
-        },
-      },
-      description: "Credit Card Payment",
+      description: "CC Payment",
       BankAccount: {
         connect: {
           id: newAccountId.id,
@@ -181,155 +217,30 @@ const seedDB = async () => {
       isTransfer: true,
     },
     {
-      amount: -5.25,
-      date: DateTime.fromISO("2023-06-01").toJSDate(),
+      amount: -20,
+      date: DateTime.fromISO("2023-06-02").toJSDate(),
       Category: {
         connectOrCreate: {
-          where: {
-            name_type: {
-                name: "Car",
-                type: "debit",
-            }
-          },
-          create: {
-            name: "Car",
-            type: "debit",
-          },
-        },
-      },
-      description: "Downtown Parking",
-      BankAccount: {
-        connect: {
-          id: newAccountId.id,
-        },
-      },
-      PayorPayee: {
-        connectOrCreate: {
-          where: {
-            thirdparty_userId: {
-              thirdparty: 'ParkWhiz',
-              userId: 'clla7inhp0000lfwo25z5bcyy',
-            }
-          },
-          create: {
-            thirdparty: 'ParkWhiz',
-            User: {
-              connect: {
-                  id: 'clla7inhp0000lfwo25z5bcyy'
-              }
-            }
-          }
-        }
-      },
-    },
-    {
-      amount: -224.50,
-      date: DateTime.fromISO("2023-06-01").toJSDate(),
-      Category: {
-        connectOrCreate: {
-          where: {
-            name_type: {
-                name: "Groceries",
-                type: "debit",
-            }
-          },
-          create: {
-            name: "Groceries",
-            type: "debit",
-          },
-        },
-      },
-      description: "Weekly Groceries",
-      BankAccount: {
-        connect: {
-          id: newAccountId.id,
-        },
-      },
-      PayorPayee: {
-        connectOrCreate: {
-          where: {
-            thirdparty_userId: {
-              thirdparty: 'Kroger',
-              userId: 'clla7inhp0000lfwo25z5bcyy',
-            }
-          },
-          create: {
-            thirdparty: 'Kroger',
-            User: {
-              connect: {
-                  id: 'clla7inhp0000lfwo25z5bcyy'
-              }
-            }
-          }
-        }
-      },
-    },
-    {
-      amount: -31.65,
-      date: DateTime.fromISO("2023-06-01").toJSDate(),
-      Category: {
-        connectOrCreate: {
-          where: {
-            name_type: {
-                name: "Household",
-                type: "debit",
-            }
-          },
-          create: {
-            name: "Household",
-            type: "debit",
-          },
-        },
-      },
-      description: "Pull-ups",
-      BankAccount: {
-        connect: {
-          id: newAccountId.id,
-        },
-      },
-      PayorPayee: {
-        connectOrCreate: {
-          where: {
-            thirdparty_userId: {
-              thirdparty: 'Target',
-              userId: 'clla7inhp0000lfwo25z5bcyy',
-            }
-          },
-          create: {
-            thirdparty: 'Target',
-            User: {
-              connect: {
-                  id: 'clla7inhp0000lfwo25z5bcyy'
-              }
-            }
-          }
-        }
-      },
-    },
-    {
-      amount: -1000,
-      date: DateTime.fromISO("2023-06-01").toJSDate(),
-      Category: {
-        connectOrCreate: {
-          where: {
-            name_type: {
-                name: "Divorce",
-                type: "debit",
+            where: {
+                name_type_custom: {
+                    name: "Entertainment",
+                    type: 'debit',
+                    custom: fakeUser.id,
+                }
+              
             },
-            custom: "clla7inhp0000lfwo25z5bcyy",
+            create: {
+              name: "Entertainment",
+              type: "debit",
+              User: {
+                connect: {
+                  id: fakeUser.id,
+                }
+              },
+            },
           },
-          create: {
-            name: "Divorce",
-            type: "debit",
-            User: {
-              connect: {
-                id: "clla7inhp0000lfwo25z5bcyy",
-              }
-            }
-          },
-        },
       },
-      description: "Retainer Replenishment",
+      description: "Lottery Tickets",
       BankAccount: {
         connect: {
           id: newAccountId.id,
@@ -339,15 +250,119 @@ const seedDB = async () => {
         connectOrCreate: {
           where: {
             thirdparty_userId: {
-              thirdparty: 'Zeurcher Lawfirm',
+              thirdparty: 'Ohio Lottery',
               userId: 'clla7inhp0000lfwo25z5bcyy',
             }
           },
           create: {
-            thirdparty: 'Zeurcher Lawfirm',
+            thirdparty: 'Ohio Lottery',
             User: {
               connect: {
+
                   id: 'clla7inhp0000lfwo25z5bcyy'
+                
+              }
+            }
+          }
+        }
+      },
+    },
+    {
+      amount: 0.08,
+      date: DateTime.fromISO("2023-06-06").toJSDate(),
+      Category: {
+        connectOrCreate: {
+            where: {
+                name_type_custom: {
+                    name: "Interest",
+                    type: 'credit',
+                    custom: fakeUser.id,
+                }
+              
+            },
+            create: {
+              name: "Interest",
+              type: "credit",
+              User: {
+                connect: {
+                  id: fakeUser.id,
+                }
+              },
+            },
+          },
+      },
+      description: "Account Interest",
+      BankAccount: {
+        connect: {
+          id: newAccountId.id,
+        },
+      },
+      PayorPayee: {
+        connectOrCreate: {
+          where: {
+            thirdparty_userId: {
+              thirdparty: 'PNC Bank',
+              userId: 'clla7inhp0000lfwo25z5bcyy',
+            }
+          },
+          create: {
+            thirdparty: 'PNC Bank',
+            User: {
+              connect: {
+
+                  id: 'clla7inhp0000lfwo25z5bcyy'
+                
+              }
+            }
+          }
+        }
+      },
+    },
+    {
+      amount: 1664.63,
+      date: DateTime.fromISO("2023-06-09").toJSDate(),
+      Category: {
+        connectOrCreate: {
+            where: {
+                name_type_custom: {
+                    name: "Salary",
+                    type: 'credit',
+                    custom: fakeUser.id,
+                }
+              
+            },
+            create: {
+              name: "Salary",
+              type: "credit",
+              User: {
+                connect: {
+                  id: fakeUser.id,
+                }
+              },
+            },
+          },
+      },
+      description: "Paycheck",
+      BankAccount: {
+        connect: {
+          id: newAccountId.id,
+        },
+      },
+      PayorPayee: {
+        connectOrCreate: {
+          where: {
+            thirdparty_userId: {
+              thirdparty: 'KVC Health Systems',
+              userId: 'clla7inhp0000lfwo25z5bcyy',
+            }
+          },
+          create: {
+            thirdparty: 'KVC Health Systems',
+            User: {
+              connect: {
+
+                  id: 'clla7inhp0000lfwo25z5bcyy'
+                
               }
             }
           }
