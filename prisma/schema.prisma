@@ -74,6 +74,7 @@ model BankAccount {
     userId          String
     type            String
     initBalance     Decimal         @default(0) @db.Decimal(20, 2)
+    currBalance     Decimal         @default(0) @db.Decimal(20, 2)
     createdDate     DateTime        @default(now())
     expireDate      DateTime?
     User            User            @relation(fields: [userId], references: [id])
