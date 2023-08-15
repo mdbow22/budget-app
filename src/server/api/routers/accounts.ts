@@ -20,34 +20,34 @@ export const accountsRouter = createTRPCRouter({
         }))
         .query(async ({ input, ctx }) => {
             
-            const allAccounts: AccountOptBal[] = await ctx.prisma.bankAccount.findMany({
+            const allAccounts = await ctx.prisma.bankAccount.findMany({
                 where: {
                     userId: ctx.session.user.id,
                 }
             });
 
-            if(input.includeBal && allAccounts.length) {
+            // if(input.includeBal && allAccounts.length) {
 
-                const accountsWithBal = await Promise.all(allAccounts.map(async (account) => {
-                    const sumOfTrans = await ctx.prisma.transaction.aggregate({
-                        _sum: {
-                            amount: true,
-                        },
-                        where: {
-                            accountId: account.id,
-                        }
-                    });
+            //     const accountsWithBal = await Promise.all(allAccounts.map(async (account) => {
+            //         const sumOfTrans = await ctx.prisma.transaction.aggregate({
+            //             _sum: {
+            //                 amount: true,
+            //             },
+            //             where: {
+            //                 accountId: account.id,
+            //             }
+            //         });
 
-                    return ({
-                        ...account,
-                        balance: sumOfTrans._sum.amount ? account.initBalance.plus(sumOfTrans._sum.amount).toNumber() : null,
-                    })
-                }))
+            //         return ({
+            //             ...account,
+            //             balance: sumOfTrans._sum.amount ? account.initBalance.plus(sumOfTrans._sum.amount).toNumber() : null,
+            //         })
+            //     }))
 
-                return accountsWithBal;
-            } else {
-                return allAccounts;
-            }
+            //     return accountsWithBal;
+            // } else {
+                return allAccounts.map(account => ({ ...account, currBalance: account.currBalance.toNumber()}));
+            // }
         }),
     createAccount: protectedProcedure
         .input(z.object({
