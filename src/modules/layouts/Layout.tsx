@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import TopNav from "./TopNav";
 import { api } from '~/utils/api';
+import Link from 'next/link';
 
 const Layout: React.FC<{ children: any }> = ({ children }) => {
   const [checked, setChecked] = useState(false);
@@ -43,7 +44,7 @@ const Layout: React.FC<{ children: any }> = ({ children }) => {
         ></label>
         <ul className="menu menu-lg h-full w-72 bg-base-200 text-base-content">
           <li>
-            <a>Dashboard</a>
+            <Link href='/dashboard'>Dashboard</Link>
           </li>
           <li>
             <details open>
@@ -52,9 +53,9 @@ const Layout: React.FC<{ children: any }> = ({ children }) => {
                 {!isLoading && data?.map((account) => {
                     return (
                         <li key={account.id}>
-                            <a className='text-base justify-between'>
-                                <div>{account.name}</div><div>(${account.balance})</div>
-                            </a>
+                            <Link href={`/accounts/${account.id}`} className='text-base justify-between'>
+                                <div>{account.name}</div><div>(${account.currBalance})</div>
+                            </Link>
                         </li>
                     )
                 })}
