@@ -1,4 +1,4 @@
-import { DateTime } from 'luxon';
+import { DateTime } from "luxon";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import z from "zod";
 
@@ -51,6 +51,51 @@ export const transactionsRouter = createTRPCRouter({
       isTransfer: transaction.isTransfer,
     }));
   }),
+  getAccountTransactions: protectedProcedure
+    .input(
+      z.object({
+        accountId: z.number(),
+        page: z.number(),
+        perPage: z.number(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+
+      //make sure user owns account
+      const accountOwner = await ctx.prisma.bankAccount.findFirst({
+        where: {
+          id: input.accountId,
+          userId: userId,
+        },
+      });
+
+      if (!accountOwner) {
+        throw new Error("Unauthorized Access to Account");
+      }
+
+      const transactions = await ctx.prisma.transaction.findMany({
+        skip: input.page * input.perPage,
+        take: input.perPage,
+        where: {
+          accountId: input.accountId,
+          removedDate: null,
+        },
+        include: {
+          PayorPayee: true,
+          Category: true,
+        },
+      });
+
+      const totalPageCount = await ctx.prisma.transaction.count({
+        where: {
+          accountId: input.accountId,
+          removedDate: null,
+        },
+      });
+
+      return { transactions, totalPageCount };
+    }),
   insertTransaction: protectedProcedure
     .input(
       z.object({
@@ -147,23 +192,22 @@ export const transactionsRouter = createTRPCRouter({
           },
         },
         select: {
-            bankAccounts: {
+          bankAccounts: {
+            where: {
+              id: input.accountId,
+            },
+            select: {
+              currBalance: true,
+              transactions: {
                 where: {
-                    id: input.accountId,
+                  createdDate: DateTime.now().toJSDate(),
                 },
-                select: {
-                    currBalance: true,
-                    transactions: {
-                        where: {
-                            createdDate: DateTime.now().toJSDate(),
-                        }
-                    }
-                }
-            }
-        }
+              },
+            },
+          },
+        },
       });
 
       return newTransaction.bankAccounts[0]?.transactions[0];
-      
     }),
 });

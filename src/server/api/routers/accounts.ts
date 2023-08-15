@@ -49,5 +49,29 @@ export const accountsRouter = createTRPCRouter({
                 return allAccounts;
             }
         }),
-    
+    createAccount: protectedProcedure
+        .input(z.object({
+            name: z.string(),
+            type: z.string(),
+            initBalance: z.number(),
+        }))
+        .mutation(async ({ ctx, input }) => {
+            const userId = ctx.session.user.id;
+
+            const newAccount = await ctx.prisma.bankAccount.create({
+                data: {
+                    name: input.name,
+                    type: input.type,
+                    initBalance: input.initBalance,
+                    User: {
+                        connect: {
+                            id: userId,
+                        }
+                    },
+                    currBalance: input.initBalance,
+                }
+            })
+
+            return newAccount;
+        }),
 })
