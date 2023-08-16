@@ -1,14 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import TopNav from "./TopNav";
-import { api } from '~/utils/api';
-import Link from 'next/link';
+import { api } from "~/utils/api";
+import Link from "next/link";
+import NewTransModal from "./NewTransModal";
+import SideNav from './SideNav';
 
 const Layout: React.FC<{ children: any }> = ({ children }) => {
   const [checked, setChecked] = useState(false);
 
-  const { data, isLoading } = api.accounts.getAllAccounts.useQuery({ includeBal: true })
+//   const { data, isLoading } = api.accounts.getAllAccounts.useQuery({
+//     includeBal: true,
+//   });
   // if(status === 'loading') {
   //     return (
   //         <>
@@ -23,6 +27,7 @@ const Layout: React.FC<{ children: any }> = ({ children }) => {
 
   //     return (<>Redirecting...</>)
   // }
+  const newRef = useRef<HTMLDialogElement | null>(null);
 
   return (
     <div className="drawer xl:drawer-open">
@@ -30,6 +35,7 @@ const Layout: React.FC<{ children: any }> = ({ children }) => {
       <div className="drawer-content">
         <TopNav setChecked={setChecked} checked={checked} />
         <main className="min-h-screen">{children}</main>
+        <NewTransModal ref={newRef} />
         <footer className="footer bg-secondary p-1 text-neutral-content">
           <h1 className="w-full justify-center font-bold">
             Copyright &copy; 2023
@@ -42,23 +48,28 @@ const Layout: React.FC<{ children: any }> = ({ children }) => {
           className="drawer-overlay"
           onClick={() => setChecked((prev) => !prev)}
         ></label>
-        <ul className="menu menu-lg h-full w-72 bg-base-200 text-base-content">
+        {/* <ul className="menu menu-lg h-full w-72 bg-base-200 text-base-content">
           <li>
-            <Link href='/dashboard'>Dashboard</Link>
+            <Link href="/dashboard">Dashboard</Link>
           </li>
           <li>
             <details open>
               <summary>Accounts</summary>
               <ul>
-                {!isLoading && data?.map((account) => {
+                {!isLoading &&
+                  data?.map((account) => {
                     return (
-                        <li key={account.id}>
-                            <Link href={`/accounts/${account.id}`} className='text-base justify-between'>
-                                <div>{account.name}</div><div>(${account.currBalance})</div>
-                            </Link>
-                        </li>
-                    )
-                })}
+                      <li key={account.id}>
+                        <Link
+                          href={`/accounts/${account.id}`}
+                          className="justify-between text-base"
+                        >
+                          <div>{account.name}</div>
+                          <div>(${account.currBalance})</div>
+                        </Link>
+                      </li>
+                    );
+                  })}
               </ul>
             </details>
           </li>
@@ -68,7 +79,16 @@ const Layout: React.FC<{ children: any }> = ({ children }) => {
           <li>
             <a>Goals</a>
           </li>
-        </ul>
+          <li className="mt-auto w-full items-center">
+            <a
+              className="w-full grid-cols-1 text-center"
+              onClick={() => newRef.current?.showModal()}
+            >
+              New Transaction
+            </a>
+          </li>
+        </ul> */}
+        <SideNav openModal={() => newRef.current?.showModal()} />
       </div>
     </div>
   );
