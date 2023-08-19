@@ -1,12 +1,26 @@
+import { Decimal } from "@prisma/client/runtime/library";
 import Link from "next/link";
 import React from "react";
 import { api } from "~/utils/api";
 
-const SideNav: React.FC<{ openModal: () => void }> = ({ openModal }) => {
-  const { data, isLoading } = api.accounts.getAllAccounts.useQuery({
-    includeBal: true,
-  });
+export type SideNavProps = {
+  openModal: () => void;
+  isLoading: boolean;
+  data:
+    {
+        currBalance: number;
+        id: number;
+        name: string;
+        userId: string;
+        type: string;
+        initBalance: Decimal;
+        createdDate: Date;
+        expireDate: Date | null;
+      }[]
+    | undefined;
+};
 
+const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
   return (
     <ul className="menu menu-lg h-full w-72 bg-base-200 text-base-content">
       <li className="hidden px-6 py-2 text-xl font-bold text-primary lg:grid">
