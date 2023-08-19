@@ -1,10 +1,10 @@
 import Head from "next/head";
-import React, { ReactElement, useMemo } from "react";
-import { NextPageWithLayout } from "./_app";
+import React, { type ReactElement } from "react";
+import type { NextPageWithLayout } from "./_app";
 import Layout from "~/modules/layouts/Layout";
 import { useSession } from "next-auth/react";
 import { api } from "~/utils/api";
-import { DateTime, Info } from "luxon";
+import { DateTime } from "luxon";
 import {
   Chart as ChartJS,
   CategoryScale,

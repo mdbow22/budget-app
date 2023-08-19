@@ -1,7 +1,6 @@
 import { DateTime, Info } from "luxon";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import z from "zod";
-import { Decimal } from "@prisma/client/runtime/library";
+import type { Decimal } from "@prisma/client/runtime/library";
 
 export type DashboardTransType = {
   id: number;
@@ -48,7 +47,7 @@ export const reportsRouter = createTRPCRouter({
       });
 
     if (threeMonthsTrans) {
-      let labels: string[] = [];
+      const labels: string[] = [];
       threeMonthsTrans.forEach((trans) => {
         const month = DateTime.fromJSDate(trans.date).monthShort;
         if (month && !labels.includes(month)) {
@@ -90,7 +89,7 @@ export const buildDataArray = (
   incomePoints: DashboardTransType[],
   tempLabels: string[]
 ) => {
-  let tempData: { month: string; total: number }[] = [];
+  const tempData: { month: string; total: number }[] = [];
   incomePoints?.forEach((trans) => {
     const month = DateTime.fromJSDate(trans.date).month.toString();
     if (month && tempData.map((d) => d.month).includes(month)) {

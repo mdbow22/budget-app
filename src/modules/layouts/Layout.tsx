@@ -4,11 +4,11 @@ import NewTransModal from "./NewTransModal";
 import SideNav from './SideNav';
 import { api } from '~/utils/api';
 
-const Layout: React.FC<{ children: any }> = ({ children }) => {
+const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [checked, setChecked] = useState(false);
 
   const newRef = useRef<HTMLDialogElement | null>(null);
-  const { data, isLoading } = api.accounts.getAllAccounts.useQuery({includeBal: false});
+  const { data, isLoading } = api.accounts.getAllAccounts.useQuery();
 
   return (
     <div className="drawer xl:drawer-open">

@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import React, { useCallback, useEffect, useReducer, useState } from "react";
+import React, { useCallback, useReducer, useState } from "react";
 import { api } from "~/utils/api";
 
 export type TransModalProps = {
@@ -23,7 +23,6 @@ type TransactionForm = {
 const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
   ({ accounts }, ref) => {
     const [posNeg, setPosNeg] = useState<"pos" | "neg" | null>();
-    const [isValid, setIsValid] = useState(true);
     const [submitted, setSubmitted] = useState(false);
     const [filteredCats, setFilteredCats] = useState<
       { name: string; id: number }[]
@@ -34,10 +33,10 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
       api.misc.getUserPayorPayees.useQuery();
 
     const newTransaction = api.transactions.insertTransaction.useMutation({
-      onSuccess: () => {
-        context.transactions.getRecentTransactions.invalidate();
-        context.reports.getDashboardChartData.invalidate();
-        context.accounts.getAllAccounts.invalidate();
+      onSuccess: async () => {
+        await context.transactions.getRecentTransactions.invalidate();
+        await context.reports.getDashboardChartData.invalidate();
+        await context.accounts.getAllAccounts.invalidate();
       },
     });
 
@@ -52,18 +51,22 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
 
     const reducer = (
       state: TransactionForm,
-      action: { type: string; payload: any }
+      action: { type: string; payload: { field: string, value: string | number | undefined } | null }
     ) => {
       switch (action.type) {
         case "setField": {
-          return {
-            ...state,
-            [action.payload.field]: action.payload.value,
-          };
+          if(action.payload?.field) {
+            return {
+              ...state,
+              [action.payload.field]: action.payload?.value,
+            };
+          }
+
+          return state;
+          
         }
         case "reset": {
           setSubmitted(false);
-          setIsValid(true);
           setPosNeg(null);
           return initForm;
         }
@@ -89,12 +92,11 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
       return true;
     }, [form.account, form.amount, form.category, form.date, form.payorPayee]);
 
-    const submit = (e: any) => {
+    const submit = (e: React.BaseSyntheticEvent) => {
       e.preventDefault();
       setSubmitted(true);
-      setIsValid(true);
       if (!formValid()) {
-        return setIsValid(false);
+        return;
       }
       
       const submitForm = {
@@ -324,5 +326,7 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
     );
   }
 );
+
+NewTransModal.displayName = "NewTransModal";
 
 export default NewTransModal;

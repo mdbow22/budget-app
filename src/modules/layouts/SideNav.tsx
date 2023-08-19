@@ -1,7 +1,6 @@
-import { Decimal } from "@prisma/client/runtime/library";
+import type { Decimal } from "@prisma/client/runtime/library";
 import Link from "next/link";
 import React from "react";
-import { api } from "~/utils/api";
 
 export type SideNavProps = {
   openModal: () => void;

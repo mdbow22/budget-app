@@ -1,6 +1,5 @@
 import { env } from '~/env.mjs';
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { z } from 'zod';
 
 export const miscRouter = createTRPCRouter({
     getUserCategories: protectedProcedure

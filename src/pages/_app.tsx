@@ -1,9 +1,9 @@
 import { type Session } from "next-auth";
 import { SessionProvider, useSession } from "next-auth/react";
-import { AppProps, type AppType } from "next/app";
+import type { AppProps, AppType } from "next/app";
 import { api } from "~/utils/api";
 import "~/styles/globals.css";
-import { NextPage } from "next";
+import type { NextPage } from "next";
 import React from 'react';
 
 // export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
@@ -37,7 +37,7 @@ type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
 };
 
-const MyApp = (({
+const MyApp: AppType<{session: Session | null }> = (({
   Component,
   pageProps: { session, ...pageProps },
 }: AppPropsWithLayout) => {
@@ -48,6 +48,7 @@ const MyApp = (({
     });
 
   return getLayout(
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     <SessionProvider session={session}>
       {Component.auth ? (
         <Auth>
@@ -58,9 +59,9 @@ const MyApp = (({
       )}
     </SessionProvider>
   );
-}) as AppType<{ session: Session | null }>;
+});
 
-export const Auth: React.FC<{ children: any }> = ({ children }) => {
+export const Auth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { status } = useSession({ required: true });
 
   if(status === 'loading') {
