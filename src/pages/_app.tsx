@@ -6,25 +6,6 @@ import "~/styles/globals.css";
 import type { NextPage } from "next";
 import React from 'react';
 
-// export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
-//   getLayout?: (page: React.ReactElement) => React.ReactNode
-// }
-
-// type AppPropsWithLayout = AppProps & {
-//   Component: NextPageWithLayout
-// }
-
-// const MyApp: AppType<{ session: Session | null }> = ({
-//   Component,
-//   pageProps: { session, ...pageProps },
-// }) => {
-//   return (
-//     <SessionProvider session={session}>
-//       <Component {...pageProps} />
-//     </SessionProvider>
-//   );
-// };
-
 export type NextPageWithLayout<
   TProps = Record<string, unknown>,
   TInitialProps = TProps
