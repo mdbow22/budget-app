@@ -272,7 +272,7 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
                     <option disabled value={0}>
                       Select an account...
                     </option>
-                    {accounts?.map((account) => {
+                    {accounts?.sort((a, b) => a.name.localeCompare(b.name)).map((account) => {
                       return (
                         <option value={account?.id} key={account?.id}>
                           {account.name}
