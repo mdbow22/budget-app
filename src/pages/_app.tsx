@@ -10,7 +10,7 @@ export type NextPageWithLayout<
   TProps = Record<string, unknown>,
   TInitialProps = TProps
 > = NextPage<TProps, TInitialProps> & {
-  getLayout?: (page: React.ReactElement) => React.ReactNode;
+  getLayout?: (page: React.ReactNode) => React.ReactNode;
   auth?: boolean;
 };
 

@@ -1,5 +1,4 @@
 import type { Decimal } from "@prisma/client/runtime/library";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
 import React from "react";
 

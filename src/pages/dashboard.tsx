@@ -1,5 +1,5 @@
 import Head from "next/head";
-import React, { type ReactElement } from "react";
+import React from "react";
 import type { NextPageWithLayout } from "./_app";
 import Layout from "~/modules/layouts/Layout";
 import { useSession } from "next-auth/react";
@@ -106,7 +106,7 @@ const Dashboard: NextPageWithLayout = () => {
   );
 };
 
-Dashboard.getLayout = (page: ReactElement) => {
+Dashboard.getLayout = (page: React.ReactNode) => {
   return (
     <>
       <Layout>{page}</Layout>

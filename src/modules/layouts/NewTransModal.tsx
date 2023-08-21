@@ -94,7 +94,7 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
       }
 
       return true;
-    }, [form.account, form.amount, form.category, form.date, form.payorPayee]);
+    }, [form.account, form.amount, form.category, form.date, form.payorPayee, posNeg]);
 
     const submit = (e: React.BaseSyntheticEvent) => {
       e.preventDefault();
