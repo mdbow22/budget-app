@@ -1,4 +1,5 @@
 import type { Decimal } from "@prisma/client/runtime/library";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import React from "react";
 
@@ -6,7 +7,7 @@ export type SideNavProps = {
   openModal: () => void;
   isLoading: boolean;
   data:
-    {
+    | {
         currBalance: number;
         id: number;
         name: string;
@@ -20,6 +21,47 @@ export type SideNavProps = {
 };
 
 const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
+  const balance = (rawBal: number) => {
+    if (rawBal === 0) {
+      return "$0.00";
+    }
+
+    const stringBal = Math.floor(Math.abs(rawBal)).toString();
+    const reversedBal = stringBal.includes(".")
+      ? stringBal
+          .substring(
+            0,
+            rawBal
+              .toString()
+              .split("")
+              .findIndex((d) => d === ".") ?? rawBal.toString().length
+          )
+          .split("")
+          .reverse()
+      : stringBal.split("").reverse();
+    const negative = rawBal < 0;
+    const cents = rawBal.toString().includes(".")
+      ? rawBal.toString().substring(
+          rawBal
+            .toString()
+            .split("")
+            .findIndex((e) => e === ".")
+        )
+      : ".00";
+
+    const formattedBal = reversedBal
+      .map((digit, index) => {
+        if ((index + 1) % 3 === 0 && reversedBal.length > 3) {
+          return `,${digit}`;
+        }
+        return digit;
+      })
+      .reverse()
+      .join("");
+
+    return negative ? `($${formattedBal}${cents})` : `$${formattedBal}${cents}`;
+  };
+
   return (
     <ul className="menu menu-lg h-full w-72 bg-base-200 text-base-content">
       <li className="hidden px-6 py-2 text-xl font-bold text-primary lg:grid">
@@ -33,19 +75,26 @@ const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
           <summary>Accounts</summary>
           <ul>
             {!isLoading &&
-              data?.map((account) => {
-                return (
-                  <li key={account.id}>
-                    <Link
-                      href={`/accounts/${account.id}`}
-                      className="justify-between text-base"
-                    >
-                      <div>{account.name}</div>
-                      <div>(${account.currBalance})</div>
-                    </Link>
-                  </li>
-                );
-              })}
+              data
+                ?.sort((a, b) => a.name.localeCompare(b.name))
+                .map((account) => {
+                  return (
+                    <li key={account.id}>
+                      <Link
+                        href={`/accounts/${account.id}`}
+                        className="justify-between text-base"
+                      >
+                        <div>{account.name}</div>
+                        <div>{balance(account.currBalance)}</div>
+                      </Link>
+                    </li>
+                  );
+                })}
+            <li>
+              <Link href={`/newAccount`} className="text-base">
+                + Add New Account
+              </Link>
+            </li>
           </ul>
         </details>
       </li>

@@ -109,6 +109,7 @@ export const transactionsRouter = createTRPCRouter({
         thirdParty: z.string(),
         description: z.string(),
         isTransfer: z.boolean(),
+        accountId2: z.number().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -207,6 +208,38 @@ export const transactionsRouter = createTRPCRouter({
           },
         },
       });
+
+      if (input.isTransfer) {
+        const accountBal2 = await ctx.prisma.bankAccount.findUnique({
+          where: {
+            id: input.accountId2,
+          },
+          select: {
+            currBalance: true,
+          },
+        });
+
+        const secondTrans = await ctx.prisma.bankAccount.update({
+          where: {
+            id: input.accountId2,
+          },
+          data: {
+            currBalance: accountBal2
+              ? accountBal2.currBalance.toNumber() + Math.abs(input.amount)
+              : Math.abs(input.amount),
+            transactions: {
+              create: {
+                amount: Math.abs(input.amount),
+                Category: categoryWhere,
+                PayorPayee: payorPayeeWhere,
+                date: input.date,
+                isTransfer: input.isTransfer,
+                description: input.description,
+              },
+            },
+          },
+        });
+      }
 
       return newTransaction.bankAccounts[0]?.transactions[0];
     }),

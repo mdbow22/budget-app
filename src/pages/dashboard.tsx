@@ -34,6 +34,10 @@ const Dashboard: NextPageWithLayout = () => {
   const { data: chart, isLoading: chartLoading } =
     api.reports.getDashboardChartData.useQuery();
 
+  const totalIncome = chart?.datasets[0] ? Math.floor(chart.datasets[0]?.data.reduce((prev, curr) => prev + curr) * 100) / 100 : 0.00;
+  const totalExpenses = chart?.datasets[1] ? Math.floor(chart.datasets[1]?.data.reduce((prev, curr) => prev + curr) * 100) / 100 : 0.00
+  const totalNet = Math.floor((totalIncome - totalExpenses) * 100) / 100;
+
   return (
     <>
       <Head>
@@ -90,6 +94,13 @@ const Dashboard: NextPageWithLayout = () => {
       <div className="p-5">
         <h2 className="pb-2 text-xl font-bold">Income vs Expenses</h2>
         {!chartLoading && chart && <Bar data={chart} options={{ responsive: true }} />}
+      </div>
+      <div className='px-5 pb-5'>
+        {chart && <ul className='flex justify-center gap-10'>
+          <li><span className="font-bold">Income:</span> {totalIncome}</li>
+          <li><span className="font-bold">Expenses:</span> {totalExpenses}</li>
+          <li><span className="font-bold">Net:</span> {totalNet}</li>
+        </ul>}
       </div>
     </>
   );
