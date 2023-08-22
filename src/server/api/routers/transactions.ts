@@ -55,7 +55,7 @@ export const transactionsRouter = createTRPCRouter({
     .input(
       z.object({
         accountId: z.number(),
-        page: z.number(),
+        cursor: z.number(),
         perPage: z.number(),
       })
     )
@@ -68,6 +68,11 @@ export const transactionsRouter = createTRPCRouter({
           id: input.accountId,
           userId: userId,
         },
+        select: {
+          id: true,
+          name: true,
+          currBalance: true,
+        }
       });
 
       if (!accountOwner) {
@@ -75,7 +80,7 @@ export const transactionsRouter = createTRPCRouter({
       }
 
       const transactions = await ctx.prisma.transaction.findMany({
-        skip: input.page * input.perPage,
+        skip: input.cursor * input.perPage, //page is 0 indexed!
         take: input.perPage,
         where: {
           accountId: input.accountId,
@@ -85,8 +90,15 @@ export const transactionsRouter = createTRPCRouter({
           PayorPayee: true,
           Category: true,
         },
+        orderBy: [{
+          date: 'desc',
+        }, {
+          createdDate: 'desc',
+        }
+      ]
       });
 
+      //totalPageCount is not 0 indexed! is basically transactions.length
       const totalPageCount = await ctx.prisma.transaction.count({
         where: {
           accountId: input.accountId,
@@ -94,7 +106,7 @@ export const transactionsRouter = createTRPCRouter({
         },
       });
 
-      return { transactions, totalPageCount };
+      return { transactions: transactions.map(trans => ({ ...trans, amount: trans.amount.toNumber()})), accountOwner, totalPageCount: Math.ceil(totalPageCount / input.perPage), currentPage: input.cursor };
     }),
   insertTransaction: protectedProcedure
     .input(

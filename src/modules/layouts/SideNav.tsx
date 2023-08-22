@@ -1,4 +1,5 @@
 import type { Decimal } from "@prisma/client/runtime/library";
+import { useSession } from 'next-auth/react';
 import Link from "next/link";
 import React from "react";
 
@@ -20,6 +21,7 @@ export type SideNavProps = {
 };
 
 const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
+
   const balance = (rawBal: number) => {
     if (rawBal === 0) {
       return "$0.00";
