@@ -20,6 +20,7 @@ export type SideNavProps = {
 };
 
 const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
+
   const balance = (rawBal: number) => {
     if (rawBal === 0) {
       return "$0.00";

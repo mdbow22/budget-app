@@ -37,7 +37,7 @@ export const reportsRouter = createTRPCRouter({
             {
               date: {
                 gte: DateTime.now()
-                  .minus({ months: 2 })
+                  .minus({ months: 3 })
                   .startOf("month")
                   .toJSDate(),
               },

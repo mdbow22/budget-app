@@ -28,9 +28,11 @@ const MyApp: AppType<{session: Session | null }> = (({
       return page;
     });
 
-  return getLayout(
+  return (
+    <SessionProvider session={session as Session | null}>
+    {getLayout(
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    <SessionProvider session={session}>
+      <>
       {Component.auth ? (
         <Auth>
           <Component {...pageProps} />
@@ -38,8 +40,9 @@ const MyApp: AppType<{session: Session | null }> = (({
       ) : (
         <Component {...pageProps} />
       )}
-    </SessionProvider>
-  );
+    </>
+  )}
+  </SessionProvider>);
 });
 
 export const Auth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
