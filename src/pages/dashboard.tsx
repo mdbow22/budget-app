@@ -46,9 +46,9 @@ const Dashboard: NextPageWithLayout = () => {
       <div className="p-5">
         <h2 className="pb-2 text-xl font-bold">Recent Transactions</h2>
         <div className="rounded-lg border border-zinc-300 bg-base-200">
-          <table className="table">
+          <table className="table table-sm">
             <thead>
-              <tr className="border-base-300 text-center text-base text-primary">
+              <tr className="border-base-300 text-center text-primary">
                 <th>Date</th>
                 <th>Account</th>
                 <th className="hidden md:table-cell">Category</th>
