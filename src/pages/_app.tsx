@@ -29,7 +29,7 @@ const MyApp: AppType<{session: Session | null }> = (({
     });
 
   return (
-    <SessionProvider session={session}>
+    <SessionProvider session={session as Session | null}>
     {getLayout(
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       <>

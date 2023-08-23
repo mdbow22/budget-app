@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NextPageWithLayout } from "../_app";
+import type { NextPageWithLayout } from "../_app";
 import Layout from "~/modules/layouts/Layout";
 import { useRouter } from "next/router";
 import { api } from "~/utils/api";
@@ -10,14 +10,13 @@ import Pagination from '~/modules/reusables/Pagination';
 const AccountPage: NextPageWithLayout = () => {
   const { query } = useRouter();
   const [page, setPage] = useState(0);
-  const [perPage, setPerPage] = useState(25);
 
   const { data: transactions } =
     api.transactions.getAccountTransactions.useQuery(
       {
         accountId: parseInt(query.id as string),
         cursor: page,
-        perPage: perPage,
+        perPage: 25,
       },
       {
         enabled: !!query.id,
@@ -51,7 +50,7 @@ const AccountPage: NextPageWithLayout = () => {
               <tbody className='border border-base-200'>
                 {transactions.transactions.map((trans) => {
                   return (
-                    <tr className='hover'>
+                    <tr className='hover' key={`trans-${trans.id}`}>
                       <td>
                         {DateTime.fromJSDate(trans.date).toFormat("MM/dd/yyyy")}
                       </td>
