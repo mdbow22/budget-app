@@ -2,7 +2,6 @@ import { DateTime, Info } from "luxon";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import type { Decimal } from "@prisma/client/runtime/library";
 import { z } from "zod";
-import { Transaction } from '@prisma/client';
 
 export type DashboardTransType = {
   id: number;
@@ -47,8 +46,8 @@ export const reportsRouter = createTRPCRouter({
 
       const totalCurrBal = allAccounts.reduce((prev, curr) => prev + curr.currBalance.toNumber(), 0);
 
-      let labels: string[] = [];
-      let balances = [];
+      const labels: string[] = [];
+      const balances = [];
       const currMonth = DateTime.now();
       for(let i = 0; i < 6; i++) {
         labels[i] = Info.months('short')[currMonth.month - 1 - i] + ' 1st' ?? '';
@@ -242,7 +241,7 @@ export const reportsRouter = createTRPCRouter({
         });
         const currBal = account.currBalance.toNumber();
 
-        let baseData: number[] = [];
+        const baseData: number[] = [];
         labels.forEach((label, i) => {
           baseData[i] = currBal - account.transactions
           .filter(
