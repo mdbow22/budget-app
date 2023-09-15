@@ -2,6 +2,7 @@ import { DateTime, Info } from "luxon";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import type { Decimal } from "@prisma/client/runtime/library";
 import { z } from "zod";
+import { Transaction } from '@prisma/client';
 
 export type DashboardTransType = {
   id: number;
@@ -29,6 +30,81 @@ export type LineChartData = {
 }
 
 export const reportsRouter = createTRPCRouter({
+  getDashboardLineChartData: protectedProcedure
+    .query(async ({ ctx }) => {
+      const userId = ctx.session.user.id;
+
+      const allAccounts = await ctx.prisma.bankAccount.findMany({
+        where: {
+          userId,
+          expireDate: null,
+        },
+        select: {
+          id: true,
+          currBalance: true,
+        }
+      });
+
+      const totalCurrBal = allAccounts.reduce((prev, curr) => prev + curr.currBalance.toNumber(), 0);
+
+      let labels: string[] = [];
+      let balances = [];
+      const currMonth = DateTime.now();
+      for(let i = 0; i < 6; i++) {
+        labels[i] = Info.months('short')[currMonth.month - 1 - i] + ' 1st' ?? '';
+
+        if(i === 0) {
+          balances[i] = totalCurrBal;
+        }
+
+        const sumOfTrans = await ctx.prisma.transaction.aggregate({
+          _sum: {
+            amount: true,
+          },
+          where: {
+            accountId: {
+              in: allAccounts.map(acc => acc.id),
+            },
+            removedDate: null,
+            isTransfer: false,
+            AND: [
+              {
+                date: {
+                  lte: DateTime.now().toJSDate(),
+                },
+              },
+              {
+                date: {
+                  gte: DateTime.now()
+                    .minus({ months: i })
+                    .startOf("month")
+                    .toJSDate(),
+                },
+              },
+            ],
+          }
+        })
+
+        balances[i] = sumOfTrans._sum.amount ? totalCurrBal - sumOfTrans._sum?.amount?.toNumber() : totalCurrBal - 0;
+      }
+
+      const chartData: LineChartData = {
+        labels: labels.reverse(),
+        datasets: [
+          {
+            label: 'Combined Accounts',
+            data: balances.reverse(),
+            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132)',
+            cubicInterpolationMode: 'monotone',
+            tension: 0.4,
+          },
+        ]
+      };
+
+      return chartData;
+
+    }),
   getDashboardChartData: protectedProcedure
     .input(
       z

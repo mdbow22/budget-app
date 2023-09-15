@@ -13,8 +13,10 @@ import {
   Title,
   Tooltip,
   Legend,
+  PointElement,
+  LineElement,
 } from "chart.js";
-import { Bar } from "react-chartjs-2";
+import { Bar, Line } from "react-chartjs-2";
 
 const Dashboard: NextPageWithLayout = () => {
   const { data } = useSession();
@@ -23,6 +25,8 @@ const Dashboard: NextPageWithLayout = () => {
     CategoryScale,
     LinearScale,
     BarElement,
+    PointElement,
+    LineElement,
     Title,
     Tooltip,
     Legend
@@ -34,8 +38,19 @@ const Dashboard: NextPageWithLayout = () => {
   const { data: chart, isLoading: chartLoading } =
     api.reports.getDashboardChartData.useQuery();
 
-  const totalIncome = chart?.datasets[0] ? Math.floor(chart.datasets[0]?.data.reduce((prev, curr) => prev + curr) * 100) / 100 : 0.00;
-  const totalExpenses = chart?.datasets[1] ? Math.floor(chart.datasets[1]?.data.reduce((prev, curr) => prev + curr) * 100) / 100 : 0.00
+  const { data: lineChart, isLoading: lineChartLoading } =
+    api.reports.getDashboardLineChartData.useQuery();
+
+  const totalIncome = chart?.datasets[0]
+    ? Math.floor(
+        chart.datasets[0]?.data.reduce((prev, curr) => prev + curr) * 100
+      ) / 100
+    : 0.0;
+  const totalExpenses = chart?.datasets[1]
+    ? Math.floor(
+        chart.datasets[1]?.data.reduce((prev, curr) => prev + curr) * 100
+      ) / 100
+    : 0.0;
   const totalNet = Math.floor((totalIncome - totalExpenses) * 100) / 100;
 
   return (
@@ -91,16 +106,45 @@ const Dashboard: NextPageWithLayout = () => {
           </table>
         </div>
       </div>
-      <div className="p-5">
-        <h2 className="pb-2 text-xl font-bold">Income vs Expenses</h2>
-        {!chartLoading && chart && <Bar data={chart} options={{ responsive: true }} />}
+      <div className="flex-col flex md:flex-row w-full gap-5 px-5 justify-between">
+        <div className='md:w-6/12'>
+          <div className="py-5">
+            <h2 className="pb-2 text-xl font-bold">Income vs Expenses</h2>
+            {!chartLoading && chart && (
+              <Bar data={chart} 
+                //options={{ responsive: true }} 
+              />
+            )}
+          </div>
+        </div>
+        <div className='md:w-6/12'>
+          <div className="py-5">
+            <h2 className="pb-2 text-xl font-bold">Change in Net Worth</h2>
+            {!!lineChart && !lineChartLoading && (
+              <Line
+                data={lineChart}
+                // options={{
+                //   responsive: true,
+                // }}
+              />
+            )}
+          </div>
+        </div>
       </div>
-      <div className='px-5 pb-5'>
-        {chart && <ul className='flex justify-center gap-10'>
-          <li><span className="font-bold">Income:</span> {totalIncome}</li>
-          <li><span className="font-bold">Expenses:</span> {totalExpenses}</li>
-          <li><span className="font-bold">Net:</span> {totalNet}</li>
-        </ul>}
+      <div className="px-5 pb-5">
+        {chart && (
+          <ul className="flex justify-center gap-10">
+            <li>
+              <span className="font-bold">Income:</span> {totalIncome}
+            </li>
+            <li>
+              <span className="font-bold">Expenses:</span> {totalExpenses}
+            </li>
+            <li>
+              <span className="font-bold">Net:</span> {totalNet}
+            </li>
+          </ul>
+        )}
       </div>
     </>
   );

@@ -13,18 +13,18 @@ const seedDB = async () => {
         AND: [
           {
             date: {
-              gte: DateTime.fromISO('2023-04-27').toJSDate(),
+              gte: DateTime.fromISO('2023-02-01').toJSDate(),
             },
            
           },
           {
             date: {
-              lte: DateTime.fromISO('2023-08-31').toJSDate(),
+              lte: DateTime.fromISO('2023-09-04').toJSDate(),
             }
           }
         ],
-        //accountId: 4,
-        isTransfer: false,
+        accountId: 4,
+        //isTransfer: false,
       }
     })
 

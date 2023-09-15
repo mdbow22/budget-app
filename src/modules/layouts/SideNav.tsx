@@ -27,6 +27,7 @@ const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
     }
 
     const stringBal = Math.floor(Math.abs(rawBal)).toString();
+    console.log(stringBal);
     const reversedBal = stringBal.includes(".")
       ? stringBal
           .substring(
@@ -72,7 +73,9 @@ const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
       </li>
       <li>
         <details open>
-          <summary>Accounts</summary>
+          <summary className='flex justify-between'>
+            <div>Accounts</div><div>{!isLoading && data && balance(Math.round(data?.reduce((curr, prev) => curr + prev.currBalance, 0) * 1000) / 1000)}</div>
+          </summary>
           <ul>
             {!isLoading &&
               data
