@@ -1,6 +1,8 @@
 import { DateTime, Info } from "luxon";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import type { Decimal } from "@prisma/client/runtime/library";
+import { z } from "zod";
+import { Transaction } from '@prisma/client';
 
 export type DashboardTransType = {
   id: number;
@@ -15,74 +17,259 @@ export type DashboardTransType = {
   removedDate: Date | null;
 };
 
+export type LineChartData = {
+  labels: string[];
+  datasets: {
+      label: string;
+      data: number[];
+      borderColor: string;
+      backgroundColor: string;
+      cubicInterpolationMode: 'default' | 'monotone' | undefined;
+      tension: number;
+  }[];
+}
+
 export const reportsRouter = createTRPCRouter({
-  getDashboardChartData: protectedProcedure.query(async ({ ctx }) => {
-    const userId = ctx.session.user.id;
+  getDashboardLineChartData: protectedProcedure
+    .query(async ({ ctx }) => {
+      const userId = ctx.session.user.id;
 
-    const threeMonthsTrans: DashboardTransType[] =
-      await ctx.prisma.transaction.findMany({
+      const allAccounts = await ctx.prisma.bankAccount.findMany({
         where: {
-          BankAccount: {
-            userId,
-            expireDate: null,
-          },
-          removedDate: null,
-          isTransfer: false,
-          AND: [
-            {
-              date: {
-                lte: DateTime.now().endOf("month").toJSDate(),
-              },
-            },
-            {
-              date: {
-                gte: DateTime.now()
-                  .minus({ months: 3 })
-                  .startOf("month")
-                  .toJSDate(),
-              },
-            },
-          ],
+          userId,
+          expireDate: null,
         },
-      });
-
-    if (threeMonthsTrans) {
-      const labels: string[] = [];
-      threeMonthsTrans.forEach((trans) => {
-        const month = DateTime.fromJSDate(trans.date).monthShort;
-        if (month && !labels.includes(month)) {
-          labels.push(month);
+        select: {
+          id: true,
+          currBalance: true,
         }
       });
 
-      const incomePoints = threeMonthsTrans.filter(
-        (trans) => trans.amount.toNumber() > 0
-      );
-      const expensePoints = threeMonthsTrans.filter(
-        (trans) => trans.amount.toNumber() < 0
-      );
+      const totalCurrBal = allAccounts.reduce((prev, curr) => prev + curr.currBalance.toNumber(), 0);
 
-      const chartData = {
-        labels: labels,
+      let labels: string[] = [];
+      let balances = [];
+      const currMonth = DateTime.now();
+      for(let i = 0; i < 6; i++) {
+        labels[i] = Info.months('short')[currMonth.month - 1 - i] + ' 1st' ?? '';
+
+        if(i === 0) {
+          balances[i] = totalCurrBal;
+        }
+
+        const sumOfTrans = await ctx.prisma.transaction.aggregate({
+          _sum: {
+            amount: true,
+          },
+          where: {
+            accountId: {
+              in: allAccounts.map(acc => acc.id),
+            },
+            removedDate: null,
+            isTransfer: false,
+            AND: [
+              {
+                date: {
+                  lte: DateTime.now().toJSDate(),
+                },
+              },
+              {
+                date: {
+                  gte: DateTime.now()
+                    .minus({ months: i })
+                    .startOf("month")
+                    .toJSDate(),
+                },
+              },
+            ],
+          }
+        })
+
+        balances[i] = sumOfTrans._sum.amount ? totalCurrBal - sumOfTrans._sum?.amount?.toNumber() : totalCurrBal - 0;
+      }
+
+      const chartData: LineChartData = {
+        labels: labels.reverse(),
         datasets: [
           {
-            label: "Income",
-            data: buildDataArray(incomePoints, labels),
-            backgroundColor: "#5F955F",
+            label: 'Combined Accounts',
+            data: balances.reverse(),
+            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132)',
+            cubicInterpolationMode: 'monotone',
+            tension: 0.4,
           },
-          {
-            label: "Expenses",
-            data: buildDataArray(expensePoints, labels),
-            backgroundColor: "#f87272",
-          },
-        ],
+        ]
       };
 
       return chartData;
-    }
 
-    return null;
-  }),
+    }),
+  getDashboardChartData: protectedProcedure
+    .input(
+      z
+        .object({
+          accountId: z.number().optional(),
+        })
+        .optional()
+    )
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const bankAccountWhere = input?.accountId
+        ? {
+            userId,
+            id: input.accountId,
+          }
+        : {
+            userId,
+            expireDate: null,
+          };
+
+      const threeMonthsTrans: DashboardTransType[] =
+        await ctx.prisma.transaction.findMany({
+          where: {
+            BankAccount: bankAccountWhere,
+            removedDate: null,
+            isTransfer: false,
+            AND: [
+              {
+                date: {
+                  lte: DateTime.now().endOf("month").toJSDate(),
+                },
+              },
+              {
+                date: {
+                  gte: DateTime.now()
+                    .minus({ months: 5 })
+                    .startOf("month")
+                    .toJSDate(),
+                },
+              },
+            ],
+          },
+          orderBy: [
+            {
+              date: 'asc'
+            }
+          ]
+        });
+
+      if (threeMonthsTrans) {
+        const labels: string[] = [];
+        threeMonthsTrans.forEach((trans) => {
+          const month = DateTime.fromJSDate(trans.date).monthShort;
+          if (month && !labels.includes(month)) {
+            labels.push(month);
+          }
+        });
+
+        const incomePoints = threeMonthsTrans.filter(
+          (trans) => trans.amount.toNumber() > 0
+        );
+        const expensePoints = threeMonthsTrans.filter(
+          (trans) => trans.amount.toNumber() < 0
+        );
+
+        const chartData = {
+          labels: labels,
+          datasets: [
+            {
+              label: "Income",
+              data: buildDataArray(incomePoints, labels),
+              backgroundColor: "#5F955F",
+            },
+            {
+              label: "Expenses",
+              data: buildDataArray(expensePoints, labels),
+              backgroundColor: "#f87272",
+            },
+          ],
+        };
+
+        return chartData;
+      }
+
+      return null;
+    }),
+  getAccountLineChart: protectedProcedure
+    .input(
+      z.object({
+        accountId: z.number(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+
+      const account = await ctx.prisma.bankAccount.findFirst({
+        where: {
+          id: input.accountId,
+          userId: ctx.session.user.id,
+        },
+        include: {
+          transactions: {
+            where: {
+              AND: [
+                {
+                  date: {
+                    lte: DateTime.now().endOf("month").toJSDate(),
+                  },
+                },
+                {
+                  date: {
+                    gte: DateTime.now()
+                      .minus({ months: 5 })
+                      .startOf("month")
+                      .toJSDate(),
+                  },
+                },
+              ],
+            },
+            orderBy: [
+              {
+                date: 'asc'
+              }
+            ]
+          },
+        },
+      });
+
+      if (account) {
+        const labels: string[] = [];
+        account.transactions.forEach((trans) => {
+          const month = DateTime.fromJSDate(trans.date).monthShort;
+          if (month && !labels.includes(month)) {
+            labels.push(month);
+          }
+        });
+        const currBal = account.currBalance.toNumber();
+
+        let baseData: number[] = [];
+        labels.forEach((label, i) => {
+          baseData[i] = currBal - account.transactions
+          .filter(
+            (trans) =>
+              DateTime.fromJSDate(trans.date) > DateTime.now().startOf("month").minus({months: i})
+          ).reduce((total, curr) => total + curr.amount.toNumber(), 0)
+        })
+
+        const chartData: LineChartData = {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Dataset 1',
+              data: baseData.reverse(),
+              borderColor: 'rgb(255, 99, 132)',
+              backgroundColor: 'rgba(255, 99, 132, 0.5)',
+              cubicInterpolationMode: 'monotone',
+              tension: 0.4,
+            },
+          ]
+        };
+
+        return chartData;
+      }
+
+      return null;
+    }),
 });
 
 export const buildDataArray = (

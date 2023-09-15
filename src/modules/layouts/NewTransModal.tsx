@@ -13,7 +13,7 @@ export type TransModalProps = {
 
 type TransactionForm = {
   account: number;
-  amount: number;
+  amount: number | undefined;
   category: string;
   description: string;
   payorPayee: string;
@@ -43,7 +43,7 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
 
     const initForm = {
       account: 0,
-      amount: 0,
+      amount: undefined,
       category: "",
       description: "",
       payorPayee: "",
@@ -116,7 +116,7 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
           : DateTime.now().toJSDate(),
         accountId: form.account,
         accountId2: form.account2,
-        amount: posNeg !== 'pos' ? form.amount * -1 : form.amount,
+        amount: posNeg !== 'pos' && form.amount ? form.amount * -1 : form.amount ? form.amount : 0,
         thirdParty: posNeg === 'trans' ? 'Account Transfer' : form.payorPayee,
         description: form.description,
         isTransfer: posNeg === 'trans',
