@@ -52,10 +52,6 @@ export const reportsRouter = createTRPCRouter({
       for(let i = 0; i < 6; i++) {
         labels[i] = Info.months('short')[currMonth.month - 1 - i] + ' 1st' ?? '';
 
-        if(i === 0) {
-          balances[i] = totalCurrBal;
-        }
-
         const sumOfTrans = await ctx.prisma.transaction.aggregate({
           _sum: {
             amount: true,
@@ -86,6 +82,9 @@ export const reportsRouter = createTRPCRouter({
 
         balances[i] = sumOfTrans._sum.amount ? totalCurrBal - sumOfTrans._sum?.amount?.toNumber() : totalCurrBal - 0;
       }
+
+      labels.unshift('Now');
+      balances.unshift(totalCurrBal);
 
       const chartData: LineChartData = {
         labels: labels.reverse(),
