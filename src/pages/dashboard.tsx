@@ -58,7 +58,48 @@ const Dashboard: NextPageWithLayout = () => {
       <Head>
         <title>Dashboard | {data?.user.name}</title>
       </Head>
-      <div className="p-5">
+      <div className="flex w-full flex-col justify-between gap-5 px-5 md:flex-row">
+        <div className="md:w-6/12">
+          <div className="py-5">
+            <h2 className="pb-2 text-xl font-bold">Income vs Expenses</h2>
+            {!chartLoading && chart && (
+              <Bar
+                data={chart}
+                //options={{ responsive: true }}
+              />
+            )}
+          </div>
+        </div>
+        <div className="md:w-6/12">
+          <div className="py-5">
+            <h2 className="pb-2 text-xl font-bold">Change in Net Worth</h2>
+            {!!lineChart && !lineChartLoading && (
+              <Line
+                data={lineChart}
+                // options={{
+                //   responsive: true,
+                // }}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="px-5 pb-5">
+        {chart && (
+          <ul className="flex justify-center gap-10">
+            <li>
+              <span className="font-bold">Income:</span> {totalIncome}
+            </li>
+            <li>
+              <span className="font-bold">Expenses:</span> {totalExpenses}
+            </li>
+            <li>
+              <span className="font-bold">Net:</span> {totalNet}
+            </li>
+          </ul>
+        )}
+      </div>
+      <div className="px-5 pb-5">
         <h2 className="pb-2 text-xl font-bold">Recent Transactions</h2>
         <div className="rounded-lg border border-zinc-300 bg-base-200">
           <table className="table table-sm">
@@ -70,6 +111,7 @@ const Dashboard: NextPageWithLayout = () => {
                 <th>Description</th>
                 <th className="hidden md:table-cell">Payor/Payee</th>
                 <th>Amount</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -99,6 +141,22 @@ const Dashboard: NextPageWithLayout = () => {
                           ? transaction.amount.toString().concat(".00")
                           : transaction.amount}
                       </td>
+                      <td className="text-center">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          className="h-4 w-4 float-right"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"
+                          />
+                        </svg>
+                      </td>
                     </tr>
                   );
                 })}
@@ -106,46 +164,7 @@ const Dashboard: NextPageWithLayout = () => {
           </table>
         </div>
       </div>
-      <div className="flex-col flex md:flex-row w-full gap-5 px-5 justify-between">
-        <div className='md:w-6/12'>
-          <div className="py-5">
-            <h2 className="pb-2 text-xl font-bold">Income vs Expenses</h2>
-            {!chartLoading && chart && (
-              <Bar data={chart} 
-                //options={{ responsive: true }} 
-              />
-            )}
-          </div>
-        </div>
-        <div className='md:w-6/12'>
-          <div className="py-5">
-            <h2 className="pb-2 text-xl font-bold">Change in Net Worth</h2>
-            {!!lineChart && !lineChartLoading && (
-              <Line
-                data={lineChart}
-                // options={{
-                //   responsive: true,
-                // }}
-              />
-            )}
-          </div>
-        </div>
-      </div>
-      <div className="px-5 pb-5">
-        {chart && (
-          <ul className="flex justify-center gap-10">
-            <li>
-              <span className="font-bold">Income:</span> {totalIncome}
-            </li>
-            <li>
-              <span className="font-bold">Expenses:</span> {totalExpenses}
-            </li>
-            <li>
-              <span className="font-bold">Net:</span> {totalNet}
-            </li>
-          </ul>
-        )}
-      </div>
+      
     </>
   );
 };
