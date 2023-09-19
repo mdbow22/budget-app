@@ -238,8 +238,9 @@ export const reportsRouter = createTRPCRouter({
             labels.push(month);
           }
         });
+        
         const currBal = account.currBalance.toNumber();
-
+        console.log('CURRENT BALANCE: ', currBal);
         const baseData: number[] = [];
         labels.forEach((label, i) => {
           baseData[i] = currBal - account.transactions
@@ -248,6 +249,9 @@ export const reportsRouter = createTRPCRouter({
               DateTime.fromJSDate(trans.date) > DateTime.now().startOf("month").minus({months: i})
           ).reduce((total, curr) => total + curr.amount.toNumber(), 0)
         })
+
+        labels.push('now');
+        baseData.unshift(currBal);
 
         const chartData: LineChartData = {
           labels: labels,
