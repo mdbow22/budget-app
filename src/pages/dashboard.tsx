@@ -65,7 +65,6 @@ const Dashboard: NextPageWithLayout = () => {
             {!chartLoading && chart && (
               <Bar
                 data={chart}
-                //options={{ responsive: true }}
               />
             )}
           </div>
@@ -76,9 +75,6 @@ const Dashboard: NextPageWithLayout = () => {
             {!!lineChart && !lineChartLoading && (
               <Line
                 data={lineChart}
-                // options={{
-                //   responsive: true,
-                // }}
               />
             )}
           </div>
