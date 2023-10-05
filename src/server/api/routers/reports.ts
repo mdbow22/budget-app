@@ -240,7 +240,7 @@ export const reportsRouter = createTRPCRouter({
         });
         
         const currBal = account.currBalance.toNumber();
-        console.log('CURRENT BALANCE: ', currBal);
+
         const baseData: number[] = [];
         labels.forEach((label, i) => {
           baseData[i] = currBal - account.transactions
