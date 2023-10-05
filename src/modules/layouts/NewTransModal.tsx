@@ -348,7 +348,7 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
                   </label>
                   <input
                     type="test"
-                    inputMode='numeric'
+                    inputMode='decimal'
                     className={`input input-bordered input-sm ${
                       submitted && !form.amount && "input-error"
                     }`}
