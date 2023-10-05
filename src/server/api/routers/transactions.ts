@@ -1,6 +1,31 @@
 import { DateTime } from "luxon";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import z from "zod";
+import { BankAccount, Transaction } from '@prisma/client';
+import { Decimal } from '@prisma/client/runtime/library';
+
+export type TransactionWIthAccount = {
+    id: number;
+    accountId: number;
+    amount: Decimal;
+    date: Date;
+    categoryId: number | null;
+    description: string | null;
+    payorPayee: number | null;
+    isTransfer: boolean;
+    createdDate: Date;
+    removedDate: Date | null;
+    BankAccount: {
+      id: number;
+      name: string;
+      userId: string;
+      type: string;
+      initBalance: Decimal;
+      currBalance: Decimal;
+      createdDate: Date;
+      expireDate: Date | null;
+    }
+}
 
 export const transactionsRouter = createTRPCRouter({
   getRecentTransactions: protectedProcedure.query(async ({ ctx }) => {
@@ -255,4 +280,87 @@ export const transactionsRouter = createTRPCRouter({
 
       return newTransaction.bankAccounts[0]?.transactions[0];
     }),
+    deleteTransaction: protectedProcedure.input(z.object({
+      trans: z.object({
+        id: z.number(),
+        amount: z.number(),
+        isTransfer: z.boolean(),
+        date: z.date(),
+      }),
+      account: z.number(),
+    })).mutation(async ({ ctx, input }) => {
+      const { trans, account } = input;
+      try {
+        const accountToUpdate = await ctx.prisma.bankAccount.findUnique({
+          where: {
+            id: account,
+          }
+        });
+  
+        if(!accountToUpdate) {
+          throw new Error('cannot find the account attached to transaction');
+        }
+  
+        let otherTransToUpdate: TransactionWIthAccount | null = null;
+        if(trans.isTransfer) {
+          otherTransToUpdate = await ctx.prisma.transaction.findFirst({
+            where: {
+              isTransfer: true,
+              amount: trans.amount * -1,
+              date: trans.date,
+              BankAccount: {
+                userId: ctx.session.user.id,
+              }
+            },
+            include: {
+              BankAccount: true,
+            }
+          });
+  
+          if(!otherTransToUpdate) {
+            throw new Error('cannot find associated transaction with this transfer')
+          }
+        }
+  
+        const deletedTransaction = await ctx.prisma.transaction.update({
+          where: {
+            id: trans.id,
+          },
+          data: {
+            removedDate: DateTime.now().toJSDate(),
+          }
+        });
+  
+        await ctx.prisma.bankAccount.update({
+          where: {
+            id: account,
+          },
+          data: {
+            currBalance: accountToUpdate.currBalance.toNumber() - trans.amount,
+          }
+        })
+
+        if(otherTransToUpdate) {
+          await ctx.prisma.transaction.update({
+            where: {
+              id: otherTransToUpdate.id,
+            },
+            data: {
+              removedDate: DateTime.now().toJSDate(),
+            }
+          })
+
+          await ctx.prisma.bankAccount.update({
+            where: {
+              id: otherTransToUpdate.BankAccount.id,
+            },
+            data: {
+              currBalance: otherTransToUpdate.BankAccount.currBalance.toNumber() + trans.amount,
+            }
+          })
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    })
 });
