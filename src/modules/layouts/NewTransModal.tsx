@@ -13,7 +13,7 @@ export type TransModalProps = {
 
 type TransactionForm = {
   account: number;
-  amount: number | undefined;
+  amount: string;
   category: string;
   description: string;
   payorPayee: string;
@@ -43,7 +43,7 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
 
     const initForm = {
       account: 0,
-      amount: undefined,
+      amount: '',
       category: "",
       description: "",
       payorPayee: "",
@@ -83,9 +83,13 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
     const [form, dispatch] = useReducer(reducer, initForm);
 
     const formValid = useCallback(() => {
+
+      const decRegex = /[^a-zA-Z\\:;\s]+/;
+
       if (
         !form.account ||
         !form.amount ||
+        (form.amount && !decRegex.test(form.amount)) ||
         !form.category ||
         !form.date ||
         (!form.payorPayee && posNeg !== 'trans')
@@ -116,7 +120,7 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
           : DateTime.now().toJSDate(),
         accountId: form.account,
         accountId2: form.account2,
-        amount: posNeg !== 'pos' && form.amount ? form.amount * -1 : form.amount ? form.amount : 0,
+        amount: posNeg !== 'pos' && form.amount ? +form.amount * -1 : +form.amount,
         thirdParty: posNeg === 'trans' ? 'Account Transfer' : form.payorPayee,
         description: form.description,
         isTransfer: posNeg === 'trans',
@@ -251,7 +255,6 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
                   </label>
                   <select
                     id="account-select"
-                    defaultValue={0}
                     className={`select select-bordered select-sm ${
                       submitted && !form.account && "select-error"
                     }`}
@@ -288,7 +291,6 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
                     </label>
                     <select
                       id="account-select"
-                      defaultValue={0}
                       className={`select select-bordered select-sm ${
                         submitted && !form.account && "select-error"
                       }`}
@@ -345,7 +347,8 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
                     <span className="label-text">Amount</span>
                   </label>
                   <input
-                    type="number"
+                    type="test"
+                    inputMode='numeric'
                     className={`input input-bordered input-sm ${
                       submitted && !form.amount && "input-error"
                     }`}
@@ -353,10 +356,10 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
                     onChange={(e) =>
                       dispatch({
                         type: "setField",
-                        payload: { field: "amount", value: +e.target.value },
+                        payload: { field: "amount", value: e.target.value },
                       })
                     }
-                    min={0}
+                    pattern='\d+\.?(\d{1,2})?'
                   />
                 </div>
               </div>
