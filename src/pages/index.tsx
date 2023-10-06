@@ -33,7 +33,7 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Brand Name Here</title>
+        <title>Balanced Budget</title>
         <meta name="description" content="Own Your Own Finances" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
