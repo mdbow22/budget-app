@@ -310,7 +310,8 @@ export const transactionsRouter = createTRPCRouter({
               date: trans.date,
               BankAccount: {
                 userId: ctx.session.user.id,
-              }
+              },
+              removedDate: null,
             },
             include: {
               BankAccount: true,

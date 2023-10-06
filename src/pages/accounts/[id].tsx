@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import type { NextPageWithLayout } from "../_app";
 import Layout from "~/modules/layouts/Layout";
 import { useRouter } from "next/router";
@@ -16,11 +16,23 @@ import {
   Title,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+import { Pencil, Save, X } from "../../../node_modules/lucide-react";
+import ConfirmDelete from '~/modules/accountPage/ConfirmDelete';
+
+export type TransactionRow = {
+  id: number;
+  amount: number;
+  payorPayee: string | undefined;
+  date: string;
+  isTransfer: boolean;
+}
 
 const AccountPage: NextPageWithLayout = () => {
   const { query } = useRouter();
   const [page, setPage] = useState(0);
   const [isEdit, setIsEdit] = useState<number>();
+  const modalRef = useRef<HTMLDialogElement>(null);
+  const [transToDel, setTransToDel] = useState<TransactionRow>();
 
   ChartJS.register(
     CategoryScale,
@@ -59,7 +71,7 @@ const AccountPage: NextPageWithLayout = () => {
       await context.accounts.getAllAccounts.invalidate();
       await context.reports.getAccountLineChart.invalidate();
       await context.transactions.getAccountTransactions.invalidate();
-    }
+    },
   });
 
   const updateTransaction = (trans: any) => {
@@ -67,7 +79,14 @@ const AccountPage: NextPageWithLayout = () => {
     setIsEdit(undefined);
   };
 
-  const deleteTransaction = (trans: any) => {
+  const deleteTransaction = () => {
+
+    const trans = transactions?.transactions.find(t => t.id === transToDel?.id)
+
+    if(!trans) {
+      return null;
+    }
+
     deleteMutation.mutate({
       account: parseInt(query.id as string),
       trans: {
@@ -75,11 +94,11 @@ const AccountPage: NextPageWithLayout = () => {
         amount: trans.amount,
         date: trans.date,
         isTransfer: trans.isTransfer,
-      }
+      },
     });
-
-    setIsEdit(undefined);
-  }
+    modalRef.current?.close();
+    setTransToDel(undefined);
+  };
 
   return (
     <>
@@ -137,62 +156,45 @@ const AccountPage: NextPageWithLayout = () => {
                       </td>
                       <td className="text-right">
                         {isEdit !== trans.id && (
-                          <div className="tooltip tooltip-accent" data-tip="Edit">
-                          <button onClick={() => setIsEdit(trans.id)}>
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              strokeWidth={1.5}
-                              stroke="currentColor"
-                              className="float-right h-4 w-4"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"
-                              />
-                            </svg>
-                          </button>
+                          <div
+                            className="tooltip tooltip-accent"
+                            data-tip="Edit"
+                          >
+                            <button onClick={() => setIsEdit(trans.id)}>
+                              <Pencil size={18} />
+                            </button>
                           </div>
                         )}
                         {isEdit === trans.id && (
-                          <div className="tooltip tooltip-accent" data-tip="Save">
-                          <button onClick={() => updateTransaction(trans)}>
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              strokeWidth={1.5}
-                              stroke="currentColor"
-                              className="h-4 w-4"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M10.125 2.25h-4.5c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125v-9M10.125 2.25h.375a9 9 0 019 9v.375M10.125 2.25A3.375 3.375 0 0113.5 5.625v1.5c0 .621.504 1.125 1.125 1.125h1.5a3.375 3.375 0 013.375 3.375M9 15l2.25 2.25L15 12"
-                              />
-                            </svg>
-                          </button>
+                          <div
+                            className="tooltip tooltip-accent"
+                            data-tip="Save"
+                          >
+                            <button onClick={() => updateTransaction(trans)}>
+                              <Save size={18} />
+                            </button>
                           </div>
                         )}
-                          <div className="tooltip tooltip-accent" data-tip="Delete">
-                        <button onClick={() => deleteTransaction(trans)} className='pl-3'>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={1.5}
-                            stroke="currentColor"
-                            className="h-4 w-4"
+                        <div
+                          className="tooltip tooltip-accent"
+                          data-tip="Delete"
+                        >
+                          <button
+                            onClick={() => {
+                              setTransToDel({
+                                id: trans.id,
+                                amount: trans.amount,
+                                payorPayee: trans.PayorPayee?.thirdparty,
+                                date: DateTime.fromJSDate(trans.date).toFormat('MM/dd/yyyy'),
+                                isTransfer: trans.isTransfer,
+                              })
+                              modalRef.current?.showModal()
+                            }}
+                            className="pl-3"
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M6 18L18 6M6 6l12 12"
-                            />
-                          </svg>
-                        </button>
+                            <X size={18} />
+                          </button>
+                          
                         </div>
                       </td>
                     </tr>
@@ -210,6 +212,7 @@ const AccountPage: NextPageWithLayout = () => {
               </div>
             )}
           </div>
+          <ConfirmDelete close={() => deleteTransaction()} trans={transToDel} ref={modalRef} />
         </>
       )}
     </>
