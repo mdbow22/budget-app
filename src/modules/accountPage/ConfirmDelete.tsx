@@ -9,13 +9,20 @@ export type ConfirmDeleteProps = {
 
 const ConfirmDelete = React.forwardRef<HTMLDialogElement, ConfirmDeleteProps>(
   ({ close, trans }, ref) => {
+
+    const deleteTrans = (e: React.SyntheticEvent<HTMLButtonElement, MouseEvent>) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        close()
+    }
+
     return (
       <>
         <dialog
           ref={ref}
           id="confirm-delete-modal"
           className="modal modal-bottom md:modal-middle"
-          onClose={() => close()}
         >
             <div className="modal-box">
             <form method="dialog">
@@ -24,9 +31,9 @@ const ConfirmDelete = React.forwardRef<HTMLDialogElement, ConfirmDeleteProps>(
               </button>
             </form>
             <div className='flex flex-col justify-center items-center gap-5'>
-                <h2 className='text-lg font-bold'>Are you sir you want to delete this transaction?</h2>
+                <h2 className='text-lg font-bold'>Are you sure you want to delete this transaction?</h2>
                 <div>Paid To/From: {trans?.payorPayee ?? trans?.isTransfer ? 'Transfer' : 'NA'}, Date: {trans?.date}, Amount: {trans?.amount}</div>
-            <button className='btn btn-error' onClick={() => close()}>
+            <button type='button' className='btn btn-error' onClick={(e) => deleteTrans(e)}>
                 DELETE
             </button>
             </div>
