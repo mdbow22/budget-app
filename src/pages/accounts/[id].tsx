@@ -4,7 +4,6 @@ import Layout from "~/modules/layouts/Layout";
 import { useRouter } from "next/router";
 import { api } from "~/utils/api";
 import Head from "next/head";
-import { DateTime } from "luxon";
 import Pagination from "~/modules/reusables/Pagination";
 import {
   Chart as ChartJS,
@@ -16,10 +15,10 @@ import {
   Title,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import { Pencil, Save, X } from "../../../node_modules/lucide-react";
 import ConfirmDelete from '~/modules/accountPage/ConfirmDelete';
+import TransactionRow from '~/modules/accountPage/TransactionRow';
 
-export type TransactionRow = {
+export type DeleteTransaction = {
   id: number;
   amount: number;
   payorPayee: string | undefined;
@@ -30,9 +29,8 @@ export type TransactionRow = {
 const AccountPage: NextPageWithLayout = () => {
   const { query } = useRouter();
   const [page, setPage] = useState(0);
-  const [isEdit, setIsEdit] = useState<number>();
   const modalRef = useRef<HTMLDialogElement>(null);
-  const [transToDel, setTransToDel] = useState<TransactionRow>();
+  const [transToDel, setTransToDel] = useState<DeleteTransaction>();
 
   ChartJS.register(
     CategoryScale,
@@ -70,14 +68,9 @@ const AccountPage: NextPageWithLayout = () => {
     onSuccess: async () => {
       await context.accounts.getAllAccounts.invalidate();
       await context.reports.getAccountLineChart.invalidate();
-      await context.transactions.getAccountTransactions.invalidate();
+      await context.transactions.getAccountTransactions.refetch();
     },
   });
-
-  const updateTransaction = (trans: any) => {
-    console.log("SAVED");
-    setIsEdit(undefined);
-  };
 
   const deleteTransaction = () => {
 
@@ -142,62 +135,7 @@ const AccountPage: NextPageWithLayout = () => {
               <tbody className="border border-base-200">
                 {transactions.transactions.map((trans) => {
                   return (
-                    <tr className="hover" key={`trans-${trans.id}`}>
-                      <td>
-                        {DateTime.fromJSDate(trans.date).toFormat("MM/dd/yyyy")}
-                      </td>
-                      <td>{trans.Category?.name}</td>
-                      <td>{trans.description}</td>
-                      <td>{trans.PayorPayee?.thirdparty}</td>
-                      <td className="text-right">
-                        {!trans.amount.toString().includes(".")
-                          ? trans.amount.toString().concat(".00")
-                          : trans.amount}
-                      </td>
-                      <td className="text-right">
-                        {isEdit !== trans.id && (
-                          <div
-                            className="tooltip tooltip-accent"
-                            data-tip="Edit"
-                          >
-                            <button onClick={() => setIsEdit(trans.id)}>
-                              <Pencil size={18} />
-                            </button>
-                          </div>
-                        )}
-                        {isEdit === trans.id && (
-                          <div
-                            className="tooltip tooltip-accent"
-                            data-tip="Save"
-                          >
-                            <button onClick={() => updateTransaction(trans)}>
-                              <Save size={18} />
-                            </button>
-                          </div>
-                        )}
-                        <div
-                          className="tooltip tooltip-accent"
-                          data-tip="Delete"
-                        >
-                          <button
-                            onClick={() => {
-                              setTransToDel({
-                                id: trans.id,
-                                amount: trans.amount,
-                                payorPayee: trans.PayorPayee?.thirdparty,
-                                date: DateTime.fromJSDate(trans.date).toFormat('MM/dd/yyyy'),
-                                isTransfer: trans.isTransfer,
-                              })
-                              modalRef.current?.showModal()
-                            }}
-                            className="pl-3"
-                          >
-                            <X size={18} />
-                          </button>
-                          
-                        </div>
-                      </td>
-                    </tr>
+                    <TransactionRow modalRef={modalRef} trans={trans} setTransToDel={setTransToDel} />
                   );
                 })}
               </tbody>

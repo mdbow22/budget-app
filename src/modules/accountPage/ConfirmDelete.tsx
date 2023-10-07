@@ -1,10 +1,10 @@
-import { TransactionRow } from '~/pages/accounts/[id]';
+import { DeleteTransaction } from '~/pages/accounts/[id]';
 import { X } from '../../../node_modules/lucide-react';
 import React from "react";
 
 export type ConfirmDeleteProps = {
   close: () => void;
-  trans: TransactionRow | undefined;
+  trans: DeleteTransaction | undefined;
 };
 
 const ConfirmDelete = React.forwardRef<HTMLDialogElement, ConfirmDeleteProps>(
