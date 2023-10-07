@@ -1,5 +1,5 @@
 import { DateTime } from "luxon";
-import React, { useCallback, useReducer, useState } from "react";
+import React, { useCallback, useImperativeHandle, useReducer, useRef, useState } from "react";
 import { api } from "~/utils/api";
 
 export type TransModalProps = {
@@ -23,6 +23,11 @@ type TransactionForm = {
 
 const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
   ({ accounts }, ref) => {
+    const dialogRef = useRef<HTMLDialogElement>(null);
+    useImperativeHandle(
+      ref,
+      () => dialogRef.current as HTMLDialogElement,
+    )
     const [posNeg, setPosNeg] = useState<"pos" | "neg" | "trans">("neg");
     const [submitted, setSubmitted] = useState(false);
     const [filteredCats, setFilteredCats] = useState<
@@ -100,8 +105,12 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
       return true;
     }, [form.account, form.amount, form.category, form.date, form.payorPayee, posNeg]);
 
-    const submit = (e: React.BaseSyntheticEvent) => {
+    const submit = (e: React.SyntheticEvent<HTMLFormElement, SubmitEvent>) => {
       e.preventDefault();
+
+      //return console.log(e.nativeEvent.submitter?.name === 'add-another')
+      
+
       setSubmitted(true);
       if (!formValid()) {
         return;
@@ -128,6 +137,9 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
 
       newTransaction.mutate(submitForm);
       dispatch({ type: "reset", payload: null });
+      if(e.nativeEvent.submitter?.id !== 'add-another') {
+        return dialogRef.current?.close();
+      }
     };
 
     // useEffect(() => {
@@ -139,7 +151,7 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
     return (
       <>
         <dialog
-          ref={ref}
+          ref={dialogRef}
           id="my_modal_3"
           className="modal modal-bottom md:modal-middle"
           onClose={() => dispatch({ type: "reset", payload: null })}
@@ -443,6 +455,8 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
                 <button
                   type="submit"
                   className="btn btn-outline btn-sm border-accent text-accent hover:border-secondary hover:bg-secondary"
+                  name='add-another'
+                  id='add-another'
                 >
                   Add Another
                 </button>
