@@ -363,5 +363,137 @@ export const transactionsRouter = createTRPCRouter({
       } catch (err) {
         console.error(err);
       }
-    })
+    }),
+    editTransaction: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        amount: z.number(),
+        description: z.string(),
+        date: z.date(),
+        category: z.object({
+          id: z.number().optional(),
+          name: z.string().optional(),
+        }),
+        payorPayee: z.object({
+          id: z.number().optional(),
+          thirdParty: z.string().optional(),
+        }),
+      }))
+      .mutation(async ({ input, ctx }) => {
+
+        let data: {
+          amount: number;
+          description: string;
+          date: Date;
+          Category?: any;
+          PayorPayee?: any;
+        } = {
+          amount: input.amount,
+          description: input.description,
+          date: input.date,
+        }
+
+        const origTrans = await ctx.prisma.transaction.findUnique({
+          where: {
+            id: input.id,
+          },
+          select: {
+            id: true,
+            amount: true,
+            accountId: true,
+            Category: {
+              select: {
+                name: true,
+                id: true,
+              }
+            },
+            PayorPayee: {
+              select: {
+                thirdparty: true,
+                id: true,
+              }
+            }
+          }
+        })
+        //connect transaction to correct category
+        if(origTrans && input.category.id) {
+          data.Category = input.category.id !== origTrans.Category?.id ? {
+              connect: {
+                id: input.category.id,
+              }
+          } : undefined;
+        } else if (!input.category.id) {
+          data.Category = {
+            create: {
+              name: input.category.name,
+              type: input.amount > 0 ? "credit" : "debit",
+              User: {
+                connect: {
+                  id: ctx.session.user.id,
+                },
+              },
+            }
+          }
+        }
+
+        //connect transaction to correct payorPayee
+        if(origTrans && (input.payorPayee.id !== origTrans.PayorPayee?.id || !input.payorPayee.id)) {
+          data.PayorPayee = {
+            connectOrCreate: {
+              where: input.payorPayee.id ? {
+                id: input.payorPayee.id,
+              } : {
+                thirdparty_userId: {
+                  userId: ctx.session.user.id,
+                  thirdparty: input.payorPayee.thirdParty,
+                },
+              },
+              create: {
+                thirdparty: input.payorPayee.thirdParty,
+                User: {
+                  connect: {
+                    id: ctx.session.user.id,
+                  },
+                },
+              },
+            },
+          }
+        }
+
+        const updatedTrans = await ctx.prisma.transaction.update({
+          where: {
+            id: input.id,
+          },
+          data,
+        })
+
+        if(origTrans && input.amount !== origTrans.amount.toNumber()) {
+
+          const difference = input.amount - origTrans.amount.toNumber();
+
+          const currBal = await ctx.prisma.bankAccount.findUnique({
+            where: {
+              id: origTrans.accountId,
+            },
+            select: {
+              currBalance: true,
+            }
+          })
+          if(currBal) {
+            const updatedAccountInfo = await ctx.prisma.bankAccount.update({
+              where: {
+                id: origTrans.accountId,
+              },
+              data: {
+                currBalance: currBal.currBalance.toNumber() + difference,
+              }
+            })
+
+            return ({ updatedTrans, updatedAccountInfo })
+          }
+          
+        }
+
+        return ({ updatedTrans });
+      })
 });

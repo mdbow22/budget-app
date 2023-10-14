@@ -3,6 +3,7 @@ import { DeleteTransaction } from "~/pages/accounts/[id]";
 import { DateTime } from "luxon";
 import { Transaction, PayorPayee, Category } from "@prisma/client";
 import { Pencil, Save, X } from "../../../node_modules/lucide-react";
+import { api } from "~/utils/api";
 
 export type TransactionRowProps = {
   trans: Omit<Transaction, "amount"> & {
@@ -17,11 +18,12 @@ export type TransactionRowProps = {
 };
 
 export type EditTransFormType = {
-  date: Date;
-  category: string | undefined;
-  description: string | null;
-  thirdParty: string | undefined;
   amount: number;
+  thirdParty: string | undefined;
+  category: string | undefined;
+  date: Date | null;
+  description: string | null;
+  id: number;
 };
 
 const TransactionRow: React.FC<TransactionRowProps> = ({
@@ -30,11 +32,21 @@ const TransactionRow: React.FC<TransactionRowProps> = ({
   modalRef,
 }) => {
   const [isEdit, setIsEdit] = useState<number>();
-
-  const updateTransaction = (trans: TransactionRowProps["trans"]) => {
-    console.log("SAVED");
-    setIsEdit(undefined);
-  };
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const queryContext = api.useContext();
+  const { data: categories } = api.misc.getUserCategories.useQuery();
+  const { data: thirdParties, isLoading: partiesLoading } =
+    api.misc.getUserPayorPayees.useQuery();
+  const updateMutation = api.transactions.editTransaction.useMutation({
+    onSuccess: () => {
+      queryContext.transactions.getAccountTransactions.invalidate();
+      queryContext.accounts.getAllAccounts.invalidate();
+      queryContext.reports.getAccountLineChart.invalidate();
+      setLoading(false);
+      setIsEdit(undefined);
+    },
+  });
 
   const initFormState = {
     amount: trans.amount,
@@ -42,6 +54,7 @@ const TransactionRow: React.FC<TransactionRowProps> = ({
     category: trans.Category?.name,
     date: trans.date,
     description: trans.description,
+    id: trans.id,
   };
 
   const reducer = (
@@ -63,8 +76,8 @@ const TransactionRow: React.FC<TransactionRowProps> = ({
         return {
           ...state,
           [action.payload?.field]:
-            action.payload.field === "date"
-              ? DateTime.fromISO(action.payload.field).toJSDate()
+            action.payload.field === "date" && action.payload.value
+              ? DateTime.fromISO(action.payload.value as string).toJSDate()
               : action.payload.value,
         };
       }
@@ -75,15 +88,65 @@ const TransactionRow: React.FC<TransactionRowProps> = ({
 
   const [editedTrans, dispatch] = useReducer(reducer, initFormState);
 
+  const updateTransaction = (trans: TransactionRowProps["trans"]) => {
+    setSubmitted(true);
+    if (
+      editedTrans.amount === 0 ||
+      !editedTrans.amount ||
+      !editedTrans.date ||
+      !editedTrans.description
+    ) {
+      return;
+    }
+
+    setLoading(true);
+
+    const submitForm = {
+      id: editedTrans.id,
+      amount: +editedTrans.amount,
+      description: editedTrans.description ?? "",
+      date: editedTrans.date,
+      category: {
+        id: categories?.find(
+          (category) =>
+            category.name.toLowerCase() === editedTrans.category?.toLowerCase()
+        )?.id,
+        name: editedTrans.category,
+      },
+      payorPayee: {
+        thirdParty: editedTrans.thirdParty,
+        id: thirdParties?.find(
+          (thirdParty) =>
+            thirdParty.thirdparty.toLowerCase() ===
+            editedTrans.thirdParty?.toLowerCase()
+        )?.id,
+      },
+    };
+
+    updateMutation.mutate(submitForm);
+  };
+
   return (
     <tr className="hover" key={`trans-${trans.id}`}>
+      {loading ?
+        <td colSpan={6} className='border text-center'>
+          <div className='text-center loading loading-dots loading-sm'></div>
+        </td>
+        :
+        <>
       <td>
         {!!isEdit ? (
           <input
             type="date"
             id="date"
-            className={`input input-bordered input-xs`}
-            value={DateTime.fromJSDate(editedTrans.date).toFormat("yyyy-MM-dd")}
+            className={`input input-bordered input-xs ${
+              submitted && !editedTrans.date ? "input-error" : ""
+            }`}
+            value={
+              editedTrans.date
+                ? DateTime.fromJSDate(editedTrans.date).toFormat("yyyy-MM-dd")
+                : undefined
+            }
             onChange={(e) =>
               dispatch({
                 type: "setField",
@@ -97,19 +160,32 @@ const TransactionRow: React.FC<TransactionRowProps> = ({
       </td>
       <td>
         {!!isEdit ? (
-          <input
-            type="text"
-            id="category"
-            list="categories"
-            className={`select select-bordered select-xs`}
-            value={editedTrans.category}
-            onChange={(e) =>
-              dispatch({
-                type: "setField",
-                payload: { field: "category", value: e.target.value },
-              })
-            }
-          />
+          <>
+            <input
+              type="text"
+              id="category"
+              list="categories"
+              className={`select select-bordered select-xs`}
+              value={editedTrans.category}
+              onChange={(e) =>
+                dispatch({
+                  type: "setField",
+                  payload: { field: "category", value: e.target.value },
+                })
+              }
+            />
+            <datalist id="categories">
+              {categories
+                ?.filter((cat) =>
+                  editedTrans.amount > 0
+                    ? cat.type === "credit"
+                    : cat.type === "debit"
+                )
+                .map((cat) => {
+                  return <option value={cat.name} key={`cat-${cat.id}`} />;
+                })}
+            </datalist>
+          </>
         ) : (
           trans.Category?.name
         )}
@@ -134,19 +210,32 @@ const TransactionRow: React.FC<TransactionRowProps> = ({
       </td>
       <td>
         {!!isEdit ? (
-          <input
-            type="text"
-            id="payorPayee"
-            list="thirdParties"
-            className={`select select-bordered select-xs`}
-            value={editedTrans.thirdParty}
-            onChange={(e) =>
-              dispatch({
-                type: "setField",
-                payload: { field: "thirdParty", value: e.target.value },
-              })
-            }
-          />
+          <>
+            <input
+              type="text"
+              id="payorPayee"
+              list="thirdParties"
+              className={`select select-bordered select-xs`}
+              value={editedTrans.thirdParty}
+              onChange={(e) =>
+                dispatch({
+                  type: "setField",
+                  payload: { field: "thirdParty", value: e.target.value },
+                })
+              }
+            />
+            <datalist id="thirdParties">
+              {!partiesLoading &&
+                thirdParties?.map((party) => {
+                  return (
+                    <option
+                      value={party.thirdparty}
+                      key={`party-${party.id}`}
+                    />
+                  );
+                })}
+            </datalist>
+          </>
         ) : (
           trans.PayorPayee?.thirdparty
         )}
@@ -156,7 +245,11 @@ const TransactionRow: React.FC<TransactionRowProps> = ({
           <input
             type="test"
             inputMode="decimal"
-            className={`input input-bordered input-xs`}
+            className={`input input-bordered input-xs ${
+              submitted && (editedTrans.amount === 0 || !editedTrans.amount)
+                ? "input-error"
+                : ""
+            } ${loading && 'loading loading-dots'}`}
             value={editedTrans.amount}
             onChange={(e) =>
               dispatch({
@@ -210,6 +303,8 @@ const TransactionRow: React.FC<TransactionRowProps> = ({
           </button>
         </div>
       </td>
+      </>
+    }
     </tr>
   );
 };

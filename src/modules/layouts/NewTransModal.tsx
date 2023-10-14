@@ -42,6 +42,7 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
       onSuccess: async () => {
         await context.transactions.getRecentTransactions.invalidate();
         await context.reports.getDashboardChartData.invalidate();
+        await context.reports.getDashboardLineChartData.invalidate();
         await context.accounts.getAllAccounts.invalidate();
       },
     });
