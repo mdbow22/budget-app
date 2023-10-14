@@ -381,7 +381,7 @@ export const transactionsRouter = createTRPCRouter({
       }))
       .mutation(async ({ input, ctx }) => {
 
-        let data: {
+        const data: {
           amount: number;
           description: string;
           date: Date;
