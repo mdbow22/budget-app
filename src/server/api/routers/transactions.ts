@@ -1,6 +1,31 @@
 import { DateTime } from "luxon";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import z from "zod";
+import { BankAccount, Transaction } from '@prisma/client';
+import { Decimal } from '@prisma/client/runtime/library';
+
+export type TransactionWIthAccount = {
+    id: number;
+    accountId: number;
+    amount: Decimal;
+    date: Date;
+    categoryId: number | null;
+    description: string | null;
+    payorPayee: number | null;
+    isTransfer: boolean;
+    createdDate: Date;
+    removedDate: Date | null;
+    BankAccount: {
+      id: number;
+      name: string;
+      userId: string;
+      type: string;
+      initBalance: Decimal;
+      currBalance: Decimal;
+      createdDate: Date;
+      expireDate: Date | null;
+    }
+}
 
 export const transactionsRouter = createTRPCRouter({
   getRecentTransactions: protectedProcedure.query(async ({ ctx }) => {
@@ -255,4 +280,220 @@ export const transactionsRouter = createTRPCRouter({
 
       return newTransaction.bankAccounts[0]?.transactions[0];
     }),
+    deleteTransaction: protectedProcedure.input(z.object({
+      trans: z.object({
+        id: z.number(),
+        amount: z.number(),
+        isTransfer: z.boolean(),
+        date: z.date(),
+      }),
+      account: z.number(),
+    })).mutation(async ({ ctx, input }) => {
+      const { trans, account } = input;
+      try {
+        const accountToUpdate = await ctx.prisma.bankAccount.findUnique({
+          where: {
+            id: account,
+          }
+        });
+  
+        if(!accountToUpdate) {
+          throw new Error('cannot find the account attached to transaction');
+        }
+  
+        let otherTransToUpdate: TransactionWIthAccount | null = null;
+        if(trans.isTransfer) {
+          otherTransToUpdate = await ctx.prisma.transaction.findFirst({
+            where: {
+              isTransfer: true,
+              amount: trans.amount * -1,
+              date: trans.date,
+              BankAccount: {
+                userId: ctx.session.user.id,
+              },
+              removedDate: null,
+            },
+            include: {
+              BankAccount: true,
+            }
+          });
+  
+          if(!otherTransToUpdate) {
+            throw new Error('cannot find associated transaction with this transfer')
+          }
+        }
+  
+        const deletedTransaction = await ctx.prisma.transaction.update({
+          where: {
+            id: trans.id,
+          },
+          data: {
+            removedDate: DateTime.now().toJSDate(),
+          }
+        });
+  
+        await ctx.prisma.bankAccount.update({
+          where: {
+            id: account,
+          },
+          data: {
+            currBalance: accountToUpdate.currBalance.toNumber() - trans.amount,
+          }
+        })
+
+        if(otherTransToUpdate) {
+          await ctx.prisma.transaction.update({
+            where: {
+              id: otherTransToUpdate.id,
+            },
+            data: {
+              removedDate: DateTime.now().toJSDate(),
+            }
+          })
+
+          await ctx.prisma.bankAccount.update({
+            where: {
+              id: otherTransToUpdate.BankAccount.id,
+            },
+            data: {
+              currBalance: otherTransToUpdate.BankAccount.currBalance.toNumber() + trans.amount,
+            }
+          })
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }),
+    editTransaction: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        amount: z.number(),
+        description: z.string(),
+        date: z.date(),
+        category: z.object({
+          id: z.number().optional(),
+          name: z.string().optional(),
+        }),
+        payorPayee: z.object({
+          id: z.number().optional(),
+          thirdParty: z.string().optional(),
+        }),
+      }))
+      .mutation(async ({ input, ctx }) => {
+
+        let data: {
+          amount: number;
+          description: string;
+          date: Date;
+          Category?: any;
+          PayorPayee?: any;
+        } = {
+          amount: input.amount,
+          description: input.description,
+          date: input.date,
+        }
+
+        const origTrans = await ctx.prisma.transaction.findUnique({
+          where: {
+            id: input.id,
+          },
+          select: {
+            id: true,
+            amount: true,
+            accountId: true,
+            Category: {
+              select: {
+                name: true,
+                id: true,
+              }
+            },
+            PayorPayee: {
+              select: {
+                thirdparty: true,
+                id: true,
+              }
+            }
+          }
+        })
+        //connect transaction to correct category
+        if(origTrans && input.category.id) {
+          data.Category = input.category.id !== origTrans.Category?.id ? {
+              connect: {
+                id: input.category.id,
+              }
+          } : undefined;
+        } else if (!input.category.id) {
+          data.Category = {
+            create: {
+              name: input.category.name,
+              type: input.amount > 0 ? "credit" : "debit",
+              User: {
+                connect: {
+                  id: ctx.session.user.id,
+                },
+              },
+            }
+          }
+        }
+
+        //connect transaction to correct payorPayee
+        if(origTrans && (input.payorPayee.id !== origTrans.PayorPayee?.id || !input.payorPayee.id)) {
+          data.PayorPayee = {
+            connectOrCreate: {
+              where: input.payorPayee.id ? {
+                id: input.payorPayee.id,
+              } : {
+                thirdparty_userId: {
+                  userId: ctx.session.user.id,
+                  thirdparty: input.payorPayee.thirdParty,
+                },
+              },
+              create: {
+                thirdparty: input.payorPayee.thirdParty,
+                User: {
+                  connect: {
+                    id: ctx.session.user.id,
+                  },
+                },
+              },
+            },
+          }
+        }
+
+        const updatedTrans = await ctx.prisma.transaction.update({
+          where: {
+            id: input.id,
+          },
+          data,
+        })
+
+        if(origTrans && input.amount !== origTrans.amount.toNumber()) {
+
+          const difference = input.amount - origTrans.amount.toNumber();
+
+          const currBal = await ctx.prisma.bankAccount.findUnique({
+            where: {
+              id: origTrans.accountId,
+            },
+            select: {
+              currBalance: true,
+            }
+          })
+          if(currBal) {
+            const updatedAccountInfo = await ctx.prisma.bankAccount.update({
+              where: {
+                id: origTrans.accountId,
+              },
+              data: {
+                currBalance: currBal.currBalance.toNumber() + difference,
+              }
+            })
+
+            return ({ updatedTrans, updatedAccountInfo })
+          }
+          
+        }
+
+        return ({ updatedTrans });
+      })
 });

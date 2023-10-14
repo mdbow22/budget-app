@@ -1,60 +1,61 @@
-import type { GetServerSideProps, NextPage } from 'next';
-import { getServerSession } from 'next-auth';
+import type { GetServerSideProps, NextPage } from "next";
+import { getServerSession } from "next-auth";
 import { signIn } from "next-auth/react";
 import Head from "next/head";
-import { authOptions } from '~/server/auth';
+import { authOptions } from "~/server/auth";
 
 //how this should work: if !session => load homepage, if session => redirect to user dashboard
 //this can't happen until: sign in is set up, and dashboard page is built.
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-
   const session = await getServerSession(context.req, context.res, authOptions);
 
-  if(session) {
-    return ({
+  if (session) {
+    return {
       redirect: {
-        destination: '/dashboard',
+        destination: "/dashboard",
         permanent: false,
       },
-    })
+    };
   }
 
-  return ({
+  return {
     props: {
       authenticated: false,
-    }
-  })
-}
-
+    },
+  };
+};
 
 const Home: NextPage = () => {
-
   return (
     <>
       <Head>
-        <title>Brand Name Here</title>
+        <title>Balanced Budget</title>
         <meta name="description" content="Own Your Own Finances" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className=" flex min-h-screen flex-col items-center bg-base-100">
         <section className="flex h-1/2 justify-center overflow-hidden bg-base-200 shadow-md shadow-zinc-600/30">
-          <div className="grid w-2/3 grid-cols-2 overflow-hidden">
+          <div className="flex flex-col overflow-hidden px-4 pt-3 md:grid md:w-2/3 md:grid-cols-2 md:px-0 md:pt-0">
             <div className="flex h-full flex-col justify-center">
               <div>
-                <h1 className="text-4xl font-bold text-primary">
+                <h1 className="text-5xl font-bold text-primary pb-3">
+                  BALANCED BUDGET
+                </h1>
+                <h1 className="text-3xl font-bold text-secondary">
                   Your Money, Your Way.
                 </h1>
                 <h2 className="text-lg">
-                  We put you back in control of organizing your money. People
-                  are more in tune with their finances, when they control how it
-                  looks from the description of what you bought, to the
-                  categories you want to use to organize everything.
+                  Stop letting other companies tell you how you're spending money,
+                  and get back into control of your finances. In an age
+                  where stores and ecommerce sell everything from diapers to
+                  carburetors, Balanced Budget doesn't try to guess. It puts you in command.
                 </h2>
               </div>
 
               <div className="pt-5">
-                <button className="btn btn-primary rounded-full px-8 text-base-100 shadow active:shadow-inner"
+                <button
+                  className="btn btn-primary rounded-full px-8 text-base-100 shadow active:shadow-inner"
                   onClick={() => void signIn()}
                 >
                   Login
@@ -107,7 +108,7 @@ const Home: NextPage = () => {
       </footer>
     </>
   );
-}
+};
 
 export default Home;
 
@@ -134,4 +135,3 @@ export default Home;
 //     </div>
 //   );
 // }
-

@@ -66,7 +66,7 @@ const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
   return (
     <ul className="menu menu-lg h-full w-72 bg-base-200 text-base-content">
       <li className="hidden px-6 py-2 text-xl font-bold text-primary lg:grid">
-        Brand Name
+        Balanced Budget
       </li>
       <li>
         <Link href="/dashboard">Dashboard</Link>

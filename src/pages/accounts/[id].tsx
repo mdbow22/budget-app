@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import type { NextPageWithLayout } from "../_app";
 import Layout from "~/modules/layouts/Layout";
 import { useRouter } from "next/router";
 import { api } from "~/utils/api";
 import Head from "next/head";
-import { DateTime } from "luxon";
 import Pagination from "~/modules/reusables/Pagination";
 import {
   Chart as ChartJS,
@@ -16,10 +15,22 @@ import {
   Title,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+import ConfirmDelete from '~/modules/accountPage/ConfirmDelete';
+import TransactionRow from '~/modules/accountPage/TransactionRow';
+
+export type DeleteTransaction = {
+  id: number;
+  amount: number;
+  payorPayee: string | undefined;
+  date: string;
+  isTransfer: boolean;
+}
 
 const AccountPage: NextPageWithLayout = () => {
   const { query } = useRouter();
   const [page, setPage] = useState(0);
+  const modalRef = useRef<HTMLDialogElement>(null);
+  const [transToDel, setTransToDel] = useState<DeleteTransaction>();
 
   ChartJS.register(
     CategoryScale,
@@ -29,7 +40,7 @@ const AccountPage: NextPageWithLayout = () => {
     Tooltip,
     Title
   );
-
+  const context = api.useContext();
   const { data: transactions } =
     api.transactions.getAccountTransactions.useQuery(
       {
@@ -52,6 +63,35 @@ const AccountPage: NextPageWithLayout = () => {
         enabled: !!query.id,
       }
     );
+
+  const deleteMutation = api.transactions.deleteTransaction.useMutation({
+    onSuccess: async () => {
+      await context.accounts.getAllAccounts.invalidate();
+      await context.reports.getAccountLineChart.invalidate();
+      await context.transactions.getAccountTransactions.refetch();
+    },
+  });
+
+  const deleteTransaction = () => {
+
+    const trans = transactions?.transactions.find(t => t.id === transToDel?.id)
+
+    if(!trans) {
+      return null;
+    }
+
+    deleteMutation.mutate({
+      account: parseInt(query.id as string),
+      trans: {
+        id: trans.id,
+        amount: trans.amount,
+        date: trans.date,
+        isTransfer: trans.isTransfer,
+      },
+    });
+    modalRef.current?.close();
+    setTransToDel(undefined);
+  };
 
   return (
     <>
@@ -95,35 +135,7 @@ const AccountPage: NextPageWithLayout = () => {
               <tbody className="border border-base-200">
                 {transactions.transactions.map((trans) => {
                   return (
-                    <tr className="hover" key={`trans-${trans.id}`}>
-                      <td>
-                        {DateTime.fromJSDate(trans.date).toFormat("MM/dd/yyyy")}
-                      </td>
-                      <td>{trans.Category?.name}</td>
-                      <td>{trans.description}</td>
-                      <td>{trans.PayorPayee?.thirdparty}</td>
-                      <td className="text-right">
-                        {!trans.amount.toString().includes(".")
-                          ? trans.amount.toString().concat(".00")
-                          : trans.amount}
-                      </td>
-                      <td className="text-right">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="currentColor"
-                          className="h-4 w-4 float-right"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"
-                          />
-                        </svg>
-                      </td>
-                    </tr>
+                    <TransactionRow modalRef={modalRef} trans={trans} setTransToDel={setTransToDel} />
                   );
                 })}
               </tbody>
@@ -138,6 +150,7 @@ const AccountPage: NextPageWithLayout = () => {
               </div>
             )}
           </div>
+          <ConfirmDelete close={() => deleteTransaction()} trans={transToDel} ref={modalRef} />
         </>
       )}
     </>
