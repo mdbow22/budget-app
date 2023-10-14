@@ -1,7 +1,7 @@
 import React, { useReducer, useState } from "react";
-import { DeleteTransaction } from "~/pages/accounts/[id]";
+import type { DeleteTransaction } from "~/pages/accounts/[id]";
 import { DateTime } from "luxon";
-import { Transaction, PayorPayee, Category } from "@prisma/client";
+import type { Transaction, PayorPayee, Category } from "@prisma/client";
 import { Pencil, Save, X } from "../../../node_modules/lucide-react";
 import { api } from "~/utils/api";
 
@@ -39,10 +39,10 @@ const TransactionRow: React.FC<TransactionRowProps> = ({
   const { data: thirdParties, isLoading: partiesLoading } =
     api.misc.getUserPayorPayees.useQuery();
   const updateMutation = api.transactions.editTransaction.useMutation({
-    onSuccess: () => {
-      queryContext.transactions.getAccountTransactions.invalidate();
-      queryContext.accounts.getAllAccounts.invalidate();
-      queryContext.reports.getAccountLineChart.invalidate();
+    onSuccess: async () => {
+      await queryContext.transactions.getAccountTransactions.invalidate();
+      await queryContext.accounts.getAllAccounts.invalidate();
+      await queryContext.reports.getAccountLineChart.invalidate();
       setLoading(false);
       setIsEdit(undefined);
     },
@@ -66,7 +66,7 @@ const TransactionRow: React.FC<TransactionRowProps> = ({
   ) => {
     switch (action.type) {
       case "initialize": {
-        let state = initFormState;
+        const state = initFormState;
         return state;
       }
       case "setField": {
@@ -88,7 +88,7 @@ const TransactionRow: React.FC<TransactionRowProps> = ({
 
   const [editedTrans, dispatch] = useReducer(reducer, initFormState);
 
-  const updateTransaction = (trans: TransactionRowProps["trans"]) => {
+  const updateTransaction = () => {
     setSubmitted(true);
     if (
       editedTrans.amount === 0 ||
@@ -280,7 +280,7 @@ const TransactionRow: React.FC<TransactionRowProps> = ({
         )}
         {isEdit === trans.id && (
           <div className="tooltip tooltip-accent" data-tip="Save">
-            <button onClick={() => updateTransaction(trans)}>
+            <button onClick={() => updateTransaction()}>
               <Save size={18} />
             </button>
           </div>

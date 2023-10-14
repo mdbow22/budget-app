@@ -26,7 +26,7 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
     const dialogRef = useRef<HTMLDialogElement>(null);
     useImperativeHandle(
       ref,
-      () => dialogRef.current as HTMLDialogElement,
+      () => dialogRef.current!,
     )
     const [posNeg, setPosNeg] = useState<"pos" | "neg" | "trans">("neg");
     const [submitted, setSubmitted] = useState(false);

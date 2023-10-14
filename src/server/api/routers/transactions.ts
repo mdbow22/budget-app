@@ -1,8 +1,7 @@
 import { DateTime } from "luxon";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import z from "zod";
-import { BankAccount, Transaction } from '@prisma/client';
-import { Decimal } from '@prisma/client/runtime/library';
+import type { Decimal } from '@prisma/client/runtime/library';
 
 export type TransactionWIthAccount = {
     id: number;

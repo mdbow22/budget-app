@@ -54,7 +54,7 @@ const AccountPage: NextPageWithLayout = () => {
       }
     );
 
-  const { data: chartData, isLoading: chartLoading } =
+  const { data: chartData } =
     api.reports.getAccountLineChart.useQuery(
       {
         accountId: parseInt(query.id as string),
@@ -135,7 +135,7 @@ const AccountPage: NextPageWithLayout = () => {
               <tbody className="border border-base-200">
                 {transactions.transactions.map((trans) => {
                   return (
-                    <TransactionRow modalRef={modalRef} trans={trans} setTransToDel={setTransToDel} />
+                    <TransactionRow modalRef={modalRef} trans={trans} setTransToDel={setTransToDel} key={`${trans.id-trans.amount}`} />
                   );
                 })}
               </tbody>
