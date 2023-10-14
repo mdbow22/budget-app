@@ -1,4 +1,4 @@
-import { DeleteTransaction } from '~/pages/accounts/[id]';
+import type { DeleteTransaction } from '~/pages/accounts/[id]';
 import { X } from '../../../node_modules/lucide-react';
 import React from "react";
 

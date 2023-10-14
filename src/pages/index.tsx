@@ -46,10 +46,10 @@ const Home: NextPage = () => {
                   Your Money, Your Way.
                 </h1>
                 <h2 className="text-lg">
-                  Stop letting other companies tell you how you're spending money,
+                  Stop letting other companies tell you how you&apos;re spending money,
                   and get back into control of your finances. In an age
                   where stores and ecommerce sell everything from diapers to
-                  carburetors, Balanced Budget doesn't try to guess. It puts you in command.
+                  carburetors, Balanced Budget doesn&apos;t try to guess. It puts you in command.
                 </h2>
               </div>
 
