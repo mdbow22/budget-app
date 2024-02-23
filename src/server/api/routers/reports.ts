@@ -19,90 +19,97 @@ export type DashboardTransType = {
 export type LineChartData = {
   labels: string[];
   datasets: {
-      label: string;
-      data: number[];
-      borderColor: string;
-      backgroundColor: string;
-      cubicInterpolationMode: 'default' | 'monotone' | undefined;
-      tension: number;
+    label: string;
+    data: number[];
+    borderColor: string;
+    backgroundColor: string;
+    cubicInterpolationMode: "default" | "monotone" | undefined;
+    tension: number;
   }[];
-}
+};
 
 export const reportsRouter = createTRPCRouter({
-  getDashboardLineChartData: protectedProcedure
-    .query(async ({ ctx }) => {
-      const userId = ctx.session.user.id;
+  getDashboardLineChartData: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.session.user.id;
 
-      const allAccounts = await ctx.prisma.bankAccount.findMany({
-        where: {
-          userId,
-          expireDate: null,
+    const allAccounts = await ctx.prisma.bankAccount.findMany({
+      where: {
+        userId,
+        expireDate: null,
+      },
+      select: {
+        id: true,
+        currBalance: true,
+      },
+    });
+
+    const totalCurrBal = allAccounts.reduce(
+      (prev, curr) => prev + curr.currBalance.toNumber(),
+      0
+    );
+
+    const labels: string[] = [];
+    const balances = [];
+    const currMonth = DateTime.now();
+    for (let i = 0; i < 6; i++) {
+      const monthNumber =
+        currMonth.month < 6 && currMonth.month - i <= 0
+          ? 11 + (currMonth.month - i)
+          : currMonth.month - 1 - i;
+      labels[i] = Info.months("short")[monthNumber] + " 1st" ?? "";
+
+      const sumOfTrans = await ctx.prisma.transaction.aggregate({
+        _sum: {
+          amount: true,
         },
-        select: {
-          id: true,
-          currBalance: true,
-        }
+        where: {
+          accountId: {
+            in: allAccounts.map((acc) => acc.id),
+          },
+          removedDate: null,
+          isTransfer: false,
+          AND: [
+            {
+              date: {
+                lte: DateTime.now().toJSDate(),
+              },
+            },
+            {
+              date: {
+                gte: DateTime.now()
+                  .minus({ months: i })
+                  .startOf("month")
+                  .toJSDate(),
+              },
+            },
+          ],
+        },
       });
 
-      const totalCurrBal = allAccounts.reduce((prev, curr) => prev + curr.currBalance.toNumber(), 0);
+      balances[i] = sumOfTrans._sum.amount
+        ? totalCurrBal - sumOfTrans._sum?.amount?.toNumber()
+        : totalCurrBal - 0;
+    }
 
-      const labels: string[] = [];
-      const balances = [];
-      const currMonth = DateTime.now();
-      for(let i = 0; i < 6; i++) {
-        labels[i] = Info.months('short')[currMonth.month - 1 - i] + ' 1st' ?? '';
+    labels.unshift("Now");
+    balances.unshift(totalCurrBal);
 
-        const sumOfTrans = await ctx.prisma.transaction.aggregate({
-          _sum: {
-            amount: true,
-          },
-          where: {
-            accountId: {
-              in: allAccounts.map(acc => acc.id),
-            },
-            removedDate: null,
-            isTransfer: false,
-            AND: [
-              {
-                date: {
-                  lte: DateTime.now().toJSDate(),
-                },
-              },
-              {
-                date: {
-                  gte: DateTime.now()
-                    .minus({ months: i })
-                    .startOf("month")
-                    .toJSDate(),
-                },
-              },
-            ],
-          }
-        })
+    const chartData: LineChartData = {
+      labels: labels.reverse(),
+      datasets: [
+        {
+          label: "Combined Accounts",
+          data: balances.reverse(),
+          borderColor: "rgb(255, 99, 132)",
+          backgroundColor: "rgba(255, 99, 132)",
+          cubicInterpolationMode: "monotone",
+          tension: 0.4,
+        },
+      ],
+    };
 
-        balances[i] = sumOfTrans._sum.amount ? totalCurrBal - sumOfTrans._sum?.amount?.toNumber() : totalCurrBal - 0;
-      }
-
-      labels.unshift('Now');
-      balances.unshift(totalCurrBal);
-
-      const chartData: LineChartData = {
-        labels: labels.reverse(),
-        datasets: [
-          {
-            label: 'Combined Accounts',
-            data: balances.reverse(),
-            borderColor: 'rgb(255, 99, 132)',
-            backgroundColor: 'rgba(255, 99, 132)',
-            cubicInterpolationMode: 'monotone',
-            tension: 0.4,
-          },
-        ]
-      };
-
-      return chartData;
-
-    }),
+    return chartData;
+  }),
   getDashboardChartData: protectedProcedure
     .input(
       z
@@ -147,9 +154,9 @@ export const reportsRouter = createTRPCRouter({
           },
           orderBy: [
             {
-              date: 'asc'
-            }
-          ]
+              date: "asc",
+            },
+          ],
         });
 
       if (threeMonthsTrans) {
@@ -196,7 +203,6 @@ export const reportsRouter = createTRPCRouter({
       })
     )
     .query(async ({ input, ctx }) => {
-
       const account = await ctx.prisma.bankAccount.findFirst({
         where: {
           id: input.accountId,
@@ -223,9 +229,9 @@ export const reportsRouter = createTRPCRouter({
             },
             orderBy: [
               {
-                date: 'asc'
-              }
-            ]
+                date: "asc",
+              },
+            ],
           },
         },
       });
@@ -238,33 +244,37 @@ export const reportsRouter = createTRPCRouter({
             labels.push(month);
           }
         });
-        
+
         const currBal = account.currBalance.toNumber();
 
         const baseData: number[] = [];
         labels.forEach((label, i) => {
-          baseData[i] = currBal - account.transactions
-          .filter(
-            (trans) =>
-              DateTime.fromJSDate(trans.date) > DateTime.now().startOf("month").minus({months: i})
-          ).reduce((total, curr) => total + curr.amount.toNumber(), 0)
-        })
+          baseData[i] =
+            currBal -
+            account.transactions
+              .filter(
+                (trans) =>
+                  DateTime.fromJSDate(trans.date) >
+                  DateTime.now().startOf("month").minus({ months: i })
+              )
+              .reduce((total, curr) => total + curr.amount.toNumber(), 0);
+        });
 
-        labels.push('now');
+        labels.push("now");
         baseData.unshift(currBal);
 
         const chartData: LineChartData = {
           labels: labels,
           datasets: [
             {
-              label: 'Dataset 1',
+              label: "Dataset 1",
               data: baseData.reverse(),
-              borderColor: 'rgb(255, 99, 132)',
-              backgroundColor: 'rgba(255, 99, 132, 0.5)',
-              cubicInterpolationMode: 'monotone',
+              borderColor: "rgb(255, 99, 132)",
+              backgroundColor: "rgba(255, 99, 132, 0.5)",
+              cubicInterpolationMode: "monotone",
               tension: 0.4,
             },
-          ]
+          ],
         };
 
         return chartData;
@@ -278,7 +288,7 @@ export const buildDataArray = (
   incomePoints: DashboardTransType[],
   tempLabels: string[]
 ) => {
-  const tempData: { month: string; total: number }[] = [];
+  const tempData: { month: string; total: number; monthAsDate: string }[] = [];
   incomePoints?.forEach((trans) => {
     const month = DateTime.fromJSDate(trans.date).month.toString();
     if (month && tempData.map((d) => d.month).includes(month)) {
@@ -288,6 +298,9 @@ export const buildDataArray = (
       tempData.push({
         month: month.toString(),
         total: trans.amount.toNumber(),
+        monthAsDate: DateTime.fromJSDate(trans.date)
+          .startOf("month")
+          .toFormat("yyyy-MM-dd"),
       });
     }
   });
@@ -297,6 +310,7 @@ export const buildDataArray = (
   }));
 
   tempLabels.forEach((label) => {
+    const now = DateTime.now();
     const missingMonth = months.filter((month) => month.name === label)[0];
     if (
       missingMonth &&
@@ -305,11 +319,29 @@ export const buildDataArray = (
       tempData.push({
         month: missingMonth.number,
         total: 0,
+        monthAsDate:
+          tempLabels.includes("Dec") && tempLabels.includes("Jan")
+            ? parseInt(missingMonth.number) > 7
+              ? DateTime.now()
+                  .set({
+                    month: parseInt(missingMonth.number),
+                    year: DateTime.now().minus({ year: 1 }).get("year"),
+                  })
+                  .toFormat("yyyy-MM-dd")
+              : DateTime.now()
+                  .set({ month: parseInt(missingMonth.number) })
+                  .toFormat("yyyy-MM-dd")
+            : DateTime.now()
+                .set({ month: parseInt(missingMonth.number) })
+                .toFormat("yyyy-MM-dd"),
       });
     }
   });
 
   return tempData
-    .sort((a, b) => parseInt(a.month) - parseInt(b.month))
+    .sort((a, b) => {
+      //const aAsDate = DateTime.
+      return a.monthAsDate.localeCompare(b.monthAsDate);
+    })
     .map((trans) => Math.abs(trans.total));
 };
