@@ -28,7 +28,7 @@ export type LineChartData = {
   }[];
 };
 
-export const reportsRouter = createTRPCRouter({
+export const chartsRouter = createTRPCRouter({
   getDashboardLineChartData: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
 

@@ -36,10 +36,10 @@ const Dashboard: NextPageWithLayout = () => {
     api.transactions.getRecentTransactions.useQuery();
 
   const { data: chart, isLoading: chartLoading } =
-    api.reports.getDashboardChartData.useQuery();
+    api.charts.getDashboardChartData.useQuery();
 
   const { data: lineChart, isLoading: lineChartLoading } =
-    api.reports.getDashboardLineChartData.useQuery();
+    api.charts.getDashboardLineChartData.useQuery();
 
   const totalIncome = chart?.datasets[0]
     ? Math.floor(
