@@ -42,7 +42,7 @@ const TransactionRow: React.FC<TransactionRowProps> = ({
     onSuccess: async () => {
       await queryContext.transactions.getAccountTransactions.invalidate();
       await queryContext.accounts.getAllAccounts.invalidate();
-      await queryContext.reports.getAccountLineChart.invalidate();
+      await queryContext.charts.getAccountLineChart.invalidate();
       setLoading(false);
       setIsEdit(undefined);
     },
