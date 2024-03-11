@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { NextPageWithLayout } from "../_app";
+import type { NextPageWithLayout } from "../_app";
 import Layout from "~/modules/layouts/Layout";
 import Head from "next/head";
 import { api } from "~/utils/api";
@@ -13,9 +13,9 @@ const Reports: NextPageWithLayout = () => {
       DateTime.now().startOf("month").toFormat("yyyy-MM-dd")
   );
   const dateOptions = useMemo(() => {
-    let dates: { label: string; value: string | null }[] = [];
+    const dates: { label: string; value: string | null }[] = [];
     for (let i = 0; i < 6; i++) {
-      let dateTime = DateTime.now().minus({ months: i }).startOf("month");
+      const dateTime = DateTime.now().minus({ months: i }).startOf("month");
       dates.push({
         label: dateTime.toFormat("MM/dd/yyyy"),
         value: dateTime.toISO(),
