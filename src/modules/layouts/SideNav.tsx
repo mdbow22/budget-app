@@ -64,7 +64,7 @@ const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
   };
 
   return (
-    <ul className="menu menu-lg h-full w-72 bg-base-200 text-base-content">
+    <ul className="menu menu-lg h-full w-72 bg-base-300 text-base-content">
       <li className="hidden px-6 py-2 text-xl font-bold text-primary lg:grid">
         Balanced Budget
       </li>
@@ -100,6 +100,11 @@ const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
             </li>
           </ul>
         </details>
+      </li>
+      <li>
+        <Link href={'/reports'}>
+          Reports
+        </Link>
       </li>
       <li>
         <a>Budgets</a>

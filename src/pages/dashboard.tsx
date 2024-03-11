@@ -36,10 +36,12 @@ const Dashboard: NextPageWithLayout = () => {
     api.transactions.getRecentTransactions.useQuery();
 
   const { data: chart, isLoading: chartLoading } =
-    api.reports.getDashboardChartData.useQuery();
+    api.charts.getDashboardChartData.useQuery();
 
   const { data: lineChart, isLoading: lineChartLoading } =
-    api.reports.getDashboardLineChartData.useQuery();
+    api.charts.getDashboardLineChartData.useQuery();
+
+  const { data: sumOfSpend, isLoading: spendLoading } = api.charts.getDashboardChartData.useQuery({})
 
   const totalIncome = chart?.datasets[0]
     ? Math.floor(
@@ -62,9 +64,9 @@ const Dashboard: NextPageWithLayout = () => {
         <div className="md:w-6/12">
           <div className="py-5">
             <h2 className="pb-2 text-xl font-bold">Income vs Expenses</h2>
-            {!chartLoading && chart && (
+            {!spendLoading && sumOfSpend && (
               <Bar
-                data={chart}
+                data={sumOfSpend}
               />
             )}
           </div>

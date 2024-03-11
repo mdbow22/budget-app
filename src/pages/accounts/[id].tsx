@@ -55,7 +55,7 @@ const AccountPage: NextPageWithLayout = () => {
     );
 
   const { data: chartData } =
-    api.reports.getAccountLineChart.useQuery(
+    api.charts.getAccountLineChart.useQuery(
       {
         accountId: parseInt(query.id as string),
       },
@@ -67,7 +67,7 @@ const AccountPage: NextPageWithLayout = () => {
   const deleteMutation = api.transactions.deleteTransaction.useMutation({
     onSuccess: async () => {
       await context.accounts.getAllAccounts.invalidate();
-      await context.reports.getAccountLineChart.invalidate();
+      await context.charts.getAccountLineChart.invalidate();
       await context.transactions.getAccountTransactions.refetch();
     },
   });

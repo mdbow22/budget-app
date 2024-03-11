@@ -41,8 +41,8 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
     const newTransaction = api.transactions.insertTransaction.useMutation({
       onSuccess: async () => {
         await context.transactions.getRecentTransactions.invalidate();
-        await context.reports.getDashboardChartData.invalidate();
-        await context.reports.getDashboardLineChartData.invalidate();
+        await context.charts.getDashboardChartData.invalidate();
+        await context.charts.getDashboardLineChartData.invalidate();
         await context.accounts.getAllAccounts.invalidate();
       },
     });
@@ -121,9 +121,10 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
         category: {
           name: form.category,
           categoryId: categories?.find(
-            (category) =>
-              category.name.toLowerCase() === form.category.toLowerCase()
-          )?.id,
+            (category) =>{
+              const type = posNeg === 'pos' ? 'credit' : posNeg === 'neg' ? 'debit' : 'trans';
+              return category.name.toLowerCase() === form.category.toLowerCase() && category.type === type;
+          })?.id,
         },
         date: form.date
           ? DateTime.fromISO(form.date).toJSDate()
