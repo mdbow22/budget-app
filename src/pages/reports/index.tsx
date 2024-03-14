@@ -63,7 +63,7 @@ const Reports: NextPageWithLayout = () => {
           </select>
         </div>
         <div className="flex gap-10">
-          <div className="w-full">
+          <div className="w-full lg:max-w-md">
             {!spendLoading && sumOfSpend && (
               <Pie data={sumOfSpend} className="h-full w-full" />
             )}

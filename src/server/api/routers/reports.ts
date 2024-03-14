@@ -29,6 +29,7 @@ export const reportsRouter = createTRPCRouter({
               ? DateTime.fromISO(input.pastMonths).endOf("month").toJSDate()
               : DateTime.now().endOf("month").toJSDate(),
           },
+          removedDate: null,
         },
         by: ["categoryId"],
         orderBy: {
