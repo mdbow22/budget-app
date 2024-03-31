@@ -1,10 +1,8 @@
-import { env } from "~/env.mjs";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const miscRouter = createTRPCRouter({
   getUserCategories: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
-    const fakeUser = env.FAKE_USER;
 
     const usersCategories = await ctx.prisma.category.findMany({
       where: {

@@ -35,7 +35,7 @@ const Dashboard: NextPageWithLayout = () => {
   const { data: recentTrans, isLoading } =
     api.transactions.getRecentTransactions.useQuery();
 
-  const { data: chart, isLoading: chartLoading } =
+  const { data: chart } =
     api.charts.getDashboardChartData.useQuery();
 
   const { data: lineChart, isLoading: lineChartLoading } =

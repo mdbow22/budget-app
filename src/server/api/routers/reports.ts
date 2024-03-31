@@ -74,7 +74,7 @@ export const reportsRouter = createTRPCRouter({
             data: sumWithCatName.flatMap((c) =>
               c._sum.amount ? [Math.abs(c._sum.amount.toNumber())] : []
             ),
-            backgroundColor: sumWithCatName.map((c) => {
+            backgroundColor: sumWithCatName.map(() => {
               const randomNum = () =>
                 Math.floor(Math.random() * (235 - 52 + 1) + 52);
               return `rgb(${randomNum()}, ${randomNum()}, ${randomNum()})`;

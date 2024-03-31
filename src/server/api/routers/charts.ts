@@ -310,7 +310,6 @@ export const buildDataArray = (
   }));
 
   tempLabels.forEach((label) => {
-    const now = DateTime.now();
     const missingMonth = months.filter((month) => month.name === label)[0];
     if (
       missingMonth &&

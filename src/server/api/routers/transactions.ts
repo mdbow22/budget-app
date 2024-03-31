@@ -228,51 +228,6 @@ export const transactionsRouter = createTRPCRouter({
       const transactionCategory = newTransaction.transactions[0]?.categoryId;
       const transactionPayorPayee = newTransaction.transactions[0]?.payorPayee;
 
-      // const newTransaction = await ctx.prisma.user.update({
-      //   where: {
-      //     id: userId,
-      //   },
-      //   data: {
-      //     bankAccounts: {
-      //       update: {
-      //         where: {
-      //           id: input.accountId,
-      //         },
-      //         data: {
-      //           currBalance: accountBal
-      //             ? accountBal.currBalance.toNumber() + input.amount
-      //             : input.amount,
-      //           transactions: {
-      //             create: {
-      //               amount: input.amount,
-      //               description: input.description,
-      //               isTransfer: input.isTransfer ?? false,
-      //               date: input.date,
-      //               PayorPayee: payorPayeeWhere,
-      //               Category: categoryWhere,
-      //             },
-      //           },
-      //         },
-      //       },
-      //     },
-      //   },
-      //   select: {
-      //     bankAccounts: {
-      //       where: {
-      //         id: input.accountId,
-      //       },
-      //       select: {
-      //         currBalance: true,
-      //         transactions: {
-      //           where: {
-      //             createdDate: DateTime.now().toJSDate(),
-      //           },
-      //         },
-      //       },
-      //     },
-      //   },
-      // });
-
       if (input.isTransfer) {
         const accountBal2 = await ctx.prisma.bankAccount.findUnique({
           where: {
