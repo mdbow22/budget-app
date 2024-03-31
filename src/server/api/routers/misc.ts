@@ -40,6 +40,6 @@ export const miscRouter = createTRPCRouter({
       },
     });
 
-    return usersPayorPayees;
+    return usersPayorPayees.sort((a, b) => a.thirdparty.localeCompare(b.thirdparty));
   }),
 });

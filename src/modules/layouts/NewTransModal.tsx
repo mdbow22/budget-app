@@ -32,11 +32,19 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
     const [submitted, setSubmitted] = useState(false);
     const [filteredCats, setFilteredCats] = useState<
       { name: string; id: number }[]
-    >([]);
+    >();
     const context = api.useContext();
     const { data: categories } = api.misc.getUserCategories.useQuery();
     const { data: thirdParties, isLoading: partiesLoading } =
       api.misc.getUserPayorPayees.useQuery();
+
+      if(categories && !filteredCats) {
+        setFilteredCats(
+          categories
+            ? categories.filter((cats) => cats.type === "debit")
+            : []
+        );
+      }
 
     const newTransaction = api.transactions.insertTransaction.useMutation({
       onSuccess: async () => {
@@ -239,7 +247,7 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
                     setPosNeg("trans");
                     setFilteredCats(
                       categories
-                        ? categories.filter((cats) => cats.type === "debit")
+                        ? categories.filter((cats) => cats.type === "trans")
                         : []
                     );
                   }}
@@ -398,11 +406,9 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
                     }
                   />
                   <datalist id="categories">
-                    {filteredCats.map((cat) => {
+                    {filteredCats?.map((cat) => {
                       return <option value={cat.name} key={`cat-${cat.id}`} />;
                     })}
-                    {/* <option value={"Hobbies"} />
-                    <option value={"Entertainment"} /> */}
                   </datalist>
                 </div>
                 {posNeg !== 'trans' && <div className="form-control w-full">
