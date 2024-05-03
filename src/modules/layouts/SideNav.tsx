@@ -107,7 +107,28 @@ const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
         </Link>
       </li>
       <li>
-        <a>Budgets</a>
+        <details>
+          <summary className="flex justify-between">
+            Budgets
+          </summary>
+        </details>
+        <ul>
+          {/* replace once budgets are made */}
+          {true && (
+            <>
+              <li title="Restaurant Spending">
+                <Link href="/budgets/id" className="justify-between text-base">
+                  Restaurant Spending
+                </Link>
+              </li>
+            </>
+          )}
+          <li>
+            <Link href={'/budgets/newBudget'} className="text-base">
+              + Add New Budget
+            </Link>
+          </li>
+        </ul>
       </li>
       <li>
         <a>Goals</a>

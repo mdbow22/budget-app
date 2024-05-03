@@ -226,6 +226,7 @@ export const chartsRouter = createTRPCRouter({
                   },
                 },
               ],
+              removedDate: null,
             },
             orderBy: [
               {
