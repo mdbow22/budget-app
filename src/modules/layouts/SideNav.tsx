@@ -20,7 +20,6 @@ export type SideNavProps = {
 };
 
 const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
-
   const balance = (rawBal: number) => {
     if (rawBal === 0) {
       return "$0.00";
@@ -73,8 +72,18 @@ const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
       </li>
       <li>
         <details open>
-          <summary className='flex justify-between'>
-            <div>Accounts</div><div>{!isLoading && data && balance(Math.round(data?.reduce((curr, prev) => curr + prev.currBalance, 0) * 1000) / 1000)}</div>
+          <summary className="flex justify-between">
+            <div>Accounts</div>
+            <div>
+              {!isLoading &&
+                data &&
+                balance(
+                  Math.round(
+                    data?.reduce((curr, prev) => curr + prev.currBalance, 0) *
+                      1000
+                  ) / 1000
+                )}
+            </div>
           </summary>
           <ul>
             {!isLoading &&
@@ -102,33 +111,32 @@ const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
         </details>
       </li>
       <li>
-        <Link href={'/reports'}>
-          Reports
-        </Link>
+        <Link href={"/reports"}>Reports</Link>
       </li>
       <li>
         <details>
-          <summary className="flex justify-between">
-            Budgets
-          </summary>
+          <summary className="flex justify-between">Budgets</summary>
+          <ul>
+            {/* replace once budgets are made */}
+            {true && (
+              <>
+                <li title="Restaurant Spending">
+                  <Link
+                    href="/budgets/id"
+                    className="justify-between text-base"
+                  >
+                    Restaurant Spending
+                  </Link>
+                </li>
+              </>
+            )}
+            <li>
+              <Link href={"/budgets/newBudget"} className="text-base">
+                + Add New Budget
+              </Link>
+            </li>
+          </ul>
         </details>
-        <ul>
-          {/* replace once budgets are made */}
-          {true && (
-            <>
-              <li title="Restaurant Spending">
-                <Link href="/budgets/id" className="justify-between text-base">
-                  Restaurant Spending
-                </Link>
-              </li>
-            </>
-          )}
-          <li>
-            <Link href={'/budgets/newBudget'} className="text-base">
-              + Add New Budget
-            </Link>
-          </li>
-        </ul>
       </li>
       <li>
         <a>Goals</a>
