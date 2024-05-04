@@ -25,7 +25,7 @@ const NewBudget: NextPageWithLayout = () => {
     categories: [],
     max: "",
     reset: "0",
-    start: DateTime.now().toFormat("yyy-MM-dd"),
+    start: DateTime.now().toFormat("yyyy-MM-dd"),
   };
 
   const reducer = (
@@ -91,6 +91,7 @@ const NewBudget: NextPageWithLayout = () => {
               <select
                 value={form.reset}
                 className="select select-bordered select-sm"
+                onChange={(e) => dispatch({ type: 'setField', payload: { field: 'reset', value: e.target.value }})}
               >
                 <option disabled value={0}>
                   Select a frequency...
