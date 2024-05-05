@@ -1,6 +1,7 @@
 import type { Decimal } from "@prisma/client/runtime/library";
 import Link from "next/link";
 import React from "react";
+import { api } from "~/utils/api";
 
 export type SideNavProps = {
   openModal: () => void;
@@ -20,6 +21,7 @@ export type SideNavProps = {
 };
 
 const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
+  const { data: budgets, isLoading: budgetsLoading } = api.budgets.getAllBudgets.useQuery();
   const balance = (rawBal: number) => {
     if (rawBal === 0) {
       return "$0.00";
@@ -114,21 +116,21 @@ const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
         <Link href={"/reports"}>Reports</Link>
       </li>
       <li>
-        <details>
+        <details open>
           <summary className="flex justify-between">Budgets</summary>
           <ul>
             {/* replace once budgets are made */}
-            {true && (
-              <>
-                <li title="Restaurant Spending">
+            {budgets && !isLoading && budgets.map((budget) =>
+              (<>
+                <li title="Restaurant Spending" key={budget.id}>
                   <Link
-                    href="/budgets/id"
+                    href={`/budgets/${budget.id}`}
                     className="justify-between text-base"
                   >
-                    Restaurant Spending
+                    {budget.name}
                   </Link>
                 </li>
-              </>
+              </>)
             )}
             <li>
               <Link href={"/budgets/newBudget"} className="text-base">

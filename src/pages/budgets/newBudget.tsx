@@ -1,4 +1,4 @@
-import React, { useReducer, useState } from "react";
+import React, { BaseSyntheticEvent, useReducer, useState } from "react";
 import type { NextPageWithLayout } from "../_app";
 import Layout from "~/modules/layouts/Layout";
 import Head from "next/head";
@@ -8,7 +8,7 @@ import { api } from "~/utils/api";
 interface FormState {
   name: string;
   categories: number[];
-  max: number | string;
+  max: string;
   reset: string;
   start: string;
 }
@@ -20,13 +20,20 @@ const NewBudget: NextPageWithLayout = () => {
     },
   });
 
+  const sendNewBudget = api.budgets.createBudget.useMutation();
+
   const initForm: FormState = {
     name: "",
     categories: [],
-    max: "",
+    max: "0",
     reset: "0",
     start: DateTime.now().toFormat("yyyy-MM-dd"),
   };
+
+  const submit = (e: BaseSyntheticEvent) => {
+    e.preventDefault();
+    sendNewBudget.mutate(form);
+  }
 
   const reducer = (
     state: FormState,
@@ -63,7 +70,7 @@ const NewBudget: NextPageWithLayout = () => {
       </Head>
       <div className="w-full p-5">
         <h1 className="text-2xl font-bold">New Budget</h1>
-        <form noValidate>
+        <form noValidate onSubmit={(e) => submit(e)}>
           <div className="grid grid-cols-2 gap-2 w-1/2">
             <div className="form-control">
               <label className="label" htmlFor="name">
@@ -149,7 +156,7 @@ const NewBudget: NextPageWithLayout = () => {
             </div>
           </div>
           <div className="w-full my-3">
-            <button className="btn btn-primary">Create Budget</button>
+            <button type="submit" className="btn btn-primary">Create Budget</button>
           </div>
           <div className="mt-3 text-sm clear-both">
             *Choosing multiple will result in the budget tracking the cumulative
