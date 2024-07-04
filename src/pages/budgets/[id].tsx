@@ -48,11 +48,11 @@ const BudgetPage: NextPageWithLayout = () => {
         if (!period) {
           setPeriod(newData?.pastPeriods?.[0]);
         }
-        if (!filterOptions.length) {
+        if (!filterOptions.length && newData?.pastPeriods?.[0]) { 
           setFilterOptions(
             [
               ...new Set(
-                newData?.pastPeriods?.[0]?.transactions
+                newData.pastPeriods[0].transactions
                   .map((t) => t.PayorPayee?.thirdparty)
                   .filter((t) => t !== null && t !== undefined)
               ),
