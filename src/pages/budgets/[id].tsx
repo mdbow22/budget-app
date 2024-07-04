@@ -49,7 +49,6 @@ const BudgetPage: NextPageWithLayout = () => {
           setPeriod(newData?.pastPeriods?.[0]);
         }
         if (!filterOptions.length && newData?.pastPeriods?.[0]) { 
-
           setFilterOptions(
             [
               ...new Set(
@@ -57,7 +56,7 @@ const BudgetPage: NextPageWithLayout = () => {
                   .map((t) => t.PayorPayee?.thirdparty)
                   .filter((t) => t !== null && t !== undefined)
               ),
-            ].sort((a, b) => a.localeCompare(b))
+            ].sort((a, b) => a!.localeCompare(b))
           );
         }
         return newData;
