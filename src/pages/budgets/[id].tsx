@@ -23,7 +23,7 @@ const BudgetPage: NextPageWithLayout = () => {
   const [filters, setFilters] = useState<
     { column: string; value: string | number }[]
   >([]);
-  const [filterOptions, setFilterOptions] = useState<string[]>([]);
+  const [filterOptions, setFilterOptions] = useState<(string | undefined)[]>([]);
   const { query } = useRouter();
   const { data } = api.budgets.getBudgetInfo.useQuery(
     {
@@ -49,6 +49,7 @@ const BudgetPage: NextPageWithLayout = () => {
           setPeriod(newData?.pastPeriods?.[0]);
         }
         if (!filterOptions.length && newData?.pastPeriods?.[0]) { 
+
           setFilterOptions(
             [
               ...new Set(
