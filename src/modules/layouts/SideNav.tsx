@@ -116,10 +116,9 @@ const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
         <Link href={"/reports"}>Reports</Link>
       </li>
       <li>
-        <details open>
+        {/* <details open> */}
           <summary className="flex justify-between">Budgets</summary>
-          <ul>
-            {/* replace once budgets are made */}
+          {/* <ul>
             {budgets && !isLoading && budgets.map((budget) =>
               (<>
                 <li title="Restaurant Spending" key={budget.id}>
@@ -137,8 +136,8 @@ const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
                 + Add New Budget
               </Link>
             </li>
-          </ul>
-        </details>
+          </ul> */}
+        {/* </details> */}
       </li>
       <li>
         <a>Goals</a>
