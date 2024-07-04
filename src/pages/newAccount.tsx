@@ -32,7 +32,7 @@ const NewAccount: NextPageWithLayout = () => {
 
   const reducer = (
     state: AccountState,
-    action: { type: string; payload: any }
+    action: { type: string; payload: string }
   ) => {
     if (action.type.length) {
       return {

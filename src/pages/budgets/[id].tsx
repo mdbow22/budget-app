@@ -1,12 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { NextPageWithLayout } from "../_app";
+import type { NextPageWithLayout } from "../_app";
 import Layout from "~/modules/layouts/Layout";
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
 import TransactionRow from "~/modules/accountPage/TransactionRow";
 import { DateTime } from "luxon";
-import { Budget } from "@prisma/client";
-import { ReturnArray } from "~/server/api/routers/budgets";
+import type { ReturnArray } from "~/server/api/routers/budgets";
 import { Filter } from "../../../node_modules/lucide-react";
 
 export interface TransArray extends ReturnArray {
@@ -76,7 +75,7 @@ const BudgetPage: NextPageWithLayout = () => {
   }, [data, period]);
 
   const calculateBiggestCat = (period: Transactions) => {
-    let places: { [x: string]: number } = {};
+    const places: Record<string, number> = {};
     const payorPayees = [
       ...new Set(period.transactions.map((t) => t.PayorPayee?.thirdparty)),
     ];
@@ -190,6 +189,7 @@ const BudgetPage: NextPageWithLayout = () => {
                 return (
                   <option
                     value={DateTime.fromJSDate(p.start).toFormat("MM/dd/yyyy")}
+                    key={p.start.toISOString()}
                   >
                     {DateTime.fromJSDate(p.start).toFormat("MM/dd")} -{" "}
                     {DateTime.fromJSDate(p.end).toFormat("MM/dd")}
@@ -303,7 +303,7 @@ const BudgetPage: NextPageWithLayout = () => {
                       : -1
                   )
                   .map((t) => {
-                    return <TransactionRow noedit trans={t} />;
+                    return <TransactionRow noedit trans={t} key={t.id} />;
                   })}
                 <tr>
                   <td></td>

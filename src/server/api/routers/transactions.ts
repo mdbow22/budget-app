@@ -342,6 +342,8 @@ export const transactionsRouter = createTRPCRouter({
             }
           })
         }
+
+        return ({ deletedTransaction })
       } catch (err) {
         console.error(err);
       }

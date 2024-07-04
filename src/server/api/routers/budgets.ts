@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { DateTime } from "luxon";
-import { Category, PayorPayee, Transaction } from "@prisma/client";
+import type { Category, PayorPayee, Transaction } from "@prisma/client";
 
 export interface ReturnArray extends Omit<Transaction, 'amount'> {
   Category: Category | null;
@@ -47,6 +47,7 @@ export const budgetsRouter = createTRPCRouter({
               .minus({ weeks: i })
               .toJSDate();
             const end = DateTime.fromJSDate(start).endOf("week").toJSDate();
+            pastPeriods.push({ start, end })
             break;
           }
           case "monthly": {
