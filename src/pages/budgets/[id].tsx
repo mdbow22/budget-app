@@ -93,10 +93,7 @@ const BudgetPage: NextPageWithLayout = () => {
 
     let largest = "";
     Object.keys(places).forEach((pp) => {
-      if (
-        (places[pp] && places[largest] && places[pp] > places[largest]!) ||
-        !largest.length
-      ) {
+      if ((places[pp] && places[largest] && places[pp] > places[largest]!) || !largest.length) {
         largest = pp;
       }
     });

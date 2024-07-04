@@ -47,7 +47,7 @@ const NewBudget: NextPageWithLayout = () => {
         };
       }
       case "categoryUpdate": {
-        const newArray = state.categories.includes(action.payload.value)
+        const newArray = typeof action.payload.value === 'number' && state.categories.includes(action.payload.value)
           ? state.categories.filter((c) => c !== action.payload.value)
           : [...state.categories, action.payload.value];
         return {
@@ -134,9 +134,9 @@ const NewBudget: NextPageWithLayout = () => {
               <span className="label-text">Categories to Track*</span>
             </label>
             <div className="grid w-full grid-cols-2 gap-3 md:grid-cols-5">
-              {categories &&
-                categories.map((c) => (
+              {categories?.map((c) => (
                   <button
+                    key={c.id}
                     className={`btn ${
                       form.categories?.includes(c.id)
                         ? "btn-primary"
@@ -165,7 +165,7 @@ const NewBudget: NextPageWithLayout = () => {
           </div>
           <div className="mt-3 text-sm">
             **This is when your spend will reset to 0, e.g., you want to track
-            how much you're spending on clothing each month or how much you
+            how much you&apos;re spending on clothing each month or how much you
             spend on hobbies every quarter.
           </div>
         </form>
