@@ -23,7 +23,7 @@ const BudgetPage: NextPageWithLayout = () => {
   const [filters, setFilters] = useState<
     { column: string; value: string | number }[]
   >([]);
-  const [filterOptions, setFilterOptions] = useState<(string | undefined)[]>([]);
+  const [filterOptions, setFilterOptions] = useState<string[]>([]);
   const { query } = useRouter();
   const { data } = api.budgets.getBudgetInfo.useQuery(
     {
@@ -49,14 +49,15 @@ const BudgetPage: NextPageWithLayout = () => {
           setPeriod(newData?.pastPeriods?.[0]);
         }
         if (!filterOptions.length && newData?.pastPeriods?.[0]) { 
+          const newFilterOptions = [
+            ...new Set(
+              newData.pastPeriods[0].transactions
+                .map((t) => t.PayorPayee?.thirdparty)
+                .filter((t) => t !== null && t !== undefined)
+            ),
+          ]
           setFilterOptions(
-            [
-              ...new Set(
-                newData.pastPeriods[0].transactions
-                  .map((t) => t.PayorPayee?.thirdparty)
-                  .filter((t) => t !== null && t !== undefined)
-              ),
-            ].sort((a, b) => a!.localeCompare(b))
+            (newFilterOptions as string[]).sort((a, b) => a.localeCompare(b))
           );
         }
         return newData;
@@ -90,13 +91,15 @@ const BudgetPage: NextPageWithLayout = () => {
         );
       }
     });
-
     let largest = "";
-    Object.keys(places).forEach((pp) => {
-      if ((places[pp] && places[largest] && places[pp] > places[largest]!) || !largest.length) {
-        largest = pp;
-      }
-    });
+    if(places) {
+      Object.keys(places).forEach((pp) => {
+        if ((places?.[pp] && places[largest] && places[pp]! > places[largest]!) || !largest.length) {
+          largest = pp;
+        }
+      });
+    }
+    
 
     return { largest, amount: places[largest] };
   };
@@ -171,14 +174,15 @@ const BudgetPage: NextPageWithLayout = () => {
                 });
                 setPeriod(newPeriod);
                 setFilters([]);
+                const newFilterOptions = [
+                  ...new Set(
+                    newPeriod?.transactions
+                      .map((t) => t.PayorPayee?.thirdparty)
+                      .filter((t) => t !== null && t !== undefined)
+                  ),
+                ]
                 setFilterOptions(
-                  [
-                    ...new Set(
-                      newPeriod?.transactions
-                        .map((t) => t.PayorPayee?.thirdparty)
-                        .filter((t) => t !== null && t !== undefined)
-                    ),
-                  ].sort((a, b) => a.localeCompare(b))
+                  (newFilterOptions as string[]).sort((a, b) => a.localeCompare(b))
                 );
               }}
             >
