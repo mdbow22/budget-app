@@ -56,7 +56,7 @@ const BudgetPage: NextPageWithLayout = () => {
                   .map((t) => t.PayorPayee?.thirdparty)
                   .filter((t) => t !== null && t !== undefined)
               ),
-            ].sort((a, b) => a!.localeCompare(b))
+            ].sort((a: string, b: string) => a!.localeCompare(b))
           );
         }
         return newData;
