@@ -117,3 +117,14 @@ model PayorPayee {
     Transaction Transaction[]
     @@unique([thirdparty, userId])
 }
+
+model Budget {
+    id              Int         @id @default(autoincrement())
+    name            String      //name of budget
+    userId          String  
+    categories      String
+    max             Int         //max spend allowed
+    reset           String      //monthly, quarterly, annually, biannually (2x year)
+    start           DateTime    @db.Date
+    lastResetDate   DateTime    @db.Date
+}

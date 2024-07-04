@@ -1,6 +1,7 @@
 import type { Decimal } from "@prisma/client/runtime/library";
 import Link from "next/link";
 import React from "react";
+import { api } from "~/utils/api";
 
 export type SideNavProps = {
   openModal: () => void;
@@ -20,7 +21,7 @@ export type SideNavProps = {
 };
 
 const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
-
+  const { data: budgets, isLoading: budgetsLoading } = api.budgets.getAllBudgets.useQuery();
   const balance = (rawBal: number) => {
     if (rawBal === 0) {
       return "$0.00";
@@ -73,8 +74,18 @@ const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
       </li>
       <li>
         <details open>
-          <summary className='flex justify-between'>
-            <div>Accounts</div><div>{!isLoading && data && balance(Math.round(data?.reduce((curr, prev) => curr + prev.currBalance, 0) * 1000) / 1000)}</div>
+          <summary className="flex justify-between">
+            <div>Accounts</div>
+            <div>
+              {!isLoading &&
+                data &&
+                balance(
+                  Math.round(
+                    data?.reduce((curr, prev) => curr + prev.currBalance, 0) *
+                      1000
+                  ) / 1000
+                )}
+            </div>
           </summary>
           <ul>
             {!isLoading &&
@@ -102,12 +113,32 @@ const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
         </details>
       </li>
       <li>
-        <Link href={'/reports'}>
-          Reports
-        </Link>
+        <Link href={"/reports"}>Reports</Link>
       </li>
       <li>
-        <a>Budgets</a>
+        <details open>
+          <summary className="flex justify-between">Budgets</summary>
+          <ul>
+            {/* replace once budgets are made */}
+            {budgets && !isLoading && budgets.map((budget) =>
+              (<>
+                <li title="Restaurant Spending" key={budget.id}>
+                  <Link
+                    href={`/budgets/${budget.id}`}
+                    className="justify-between text-base"
+                  >
+                    {budget.name}
+                  </Link>
+                </li>
+              </>)
+            )}
+            <li>
+              <Link href={"/budgets/newBudget"} className="text-base">
+                + Add New Budget
+              </Link>
+            </li>
+          </ul>
+        </details>
       </li>
       <li>
         <a>Goals</a>
