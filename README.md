@@ -1,28 +1,19 @@
-# Create T3 App
+# Balanced Budget
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+A basic budget/finance app built with tRPC, NextJS, and Prisma ORM.
 
-## What's next? How do I make an app with this?
+## Description
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+An app that lets a user track their finances manually. Each transaction is entered by the user to show, with info like category, description, and payor/payee tracked along with the transaction.
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+A dashboard gives an overview of the user's finances with a bar graph showing the past 6 months total expenses and income, and a line graph shows change in net worth over the past 6 months.
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+A report view shows a pie chart covering the spend by category over a month period.
 
-## Learn More
+## Future Plans
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+Eventually, users will be able to create budgets to keep themselves within a certain limit for a category or categories. They will also be able to set goals, such as saving up for a big purchase item.
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+## How do I take a look?
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
-
-## How do I deploy this?
-
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+Go to [Balanced Budget](https://balanced-budget.up.railway.app/) and click login. Currently you can login with your discord account. Once in, you will be taken to a new account page, where you can click "Create Demo Data" to create fake accounts and transactions to see and play around with the app.
