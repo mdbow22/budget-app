@@ -1,6 +1,9 @@
 import React, { useReducer, useState } from "react";
 import type { NextPageWithLayout } from "./_app";
 import Layout from "~/modules/layouts/Layout";
+import { api } from "~/utils/api";
+import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
 
 export type AccountState = {
   name: string;
@@ -9,6 +12,13 @@ export type AccountState = {
 };
 
 const NewAccount: NextPageWithLayout = () => {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const demoData = api.accounts.createDemoData.useMutation({
+    onSuccess: (): void => {
+      void router.push('/dashboard')
+    }
+  }) 
   const options = [
     {
       name: "Checking",
@@ -45,6 +55,8 @@ const NewAccount: NextPageWithLayout = () => {
   };
 
   const [form, dispatch] = useReducer(reducer, initAccountState);
+
+
 
   return (
     <div className="p-5">
@@ -140,6 +152,10 @@ const NewAccount: NextPageWithLayout = () => {
           </div>
         </li>
       </ul>
+      <section className="mt-10">
+        <h3 className="text-lg font-bold">Just want to see how the app works?</h3>
+        <button className="btn btn-accent mt-3" onClick={() => session?.user?.id ? demoData.mutate({ id: session?.user.id }) : null}>Create Demo Data</button>
+      </section>
     </div>
   );
 };

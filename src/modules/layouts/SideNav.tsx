@@ -1,4 +1,5 @@
 import type { Decimal } from "@prisma/client/runtime/library";
+import { signOut } from "next-auth/react";
 import Link from "next/link";
 import React from "react";
 import { api } from "~/utils/api";
@@ -116,10 +117,9 @@ const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
         <Link href={"/reports"}>Reports</Link>
       </li>
       <li>
-        <details open>
+        {/* <details open> */}
           <summary className="flex justify-between">Budgets</summary>
-          <ul>
-            {/* replace once budgets are made */}
+          {/* <ul>
             {budgets && !isLoading && budgets.map((budget) =>
               (<>
                 <li title="Restaurant Spending" key={budget.id}>
@@ -137,11 +137,18 @@ const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
                 + Add New Budget
               </Link>
             </li>
-          </ul>
-        </details>
+          </ul> */}
+        {/* </details> */}
       </li>
       <li>
         <a>Goals</a>
+      </li>
+      <li className="">
+        <a
+          onClick={() => void signOut({ callbackUrl: '/' })}
+        >
+          Sign out
+        </a>
       </li>
       <li className="mt-auto w-full items-center">
         <a
