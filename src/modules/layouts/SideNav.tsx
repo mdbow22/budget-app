@@ -1,4 +1,5 @@
 import type { Decimal } from "@prisma/client/runtime/library";
+import { signOut } from "next-auth/react";
 import Link from "next/link";
 import React from "react";
 import { api } from "~/utils/api";
@@ -141,6 +142,13 @@ const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
       </li>
       <li>
         <a>Goals</a>
+      </li>
+      <li className="">
+        <a
+          onClick={() => signOut({ callbackUrl: '/' })}
+        >
+          Sign out
+        </a>
       </li>
       <li className="mt-auto w-full items-center">
         <a

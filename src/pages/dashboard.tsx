@@ -17,8 +17,10 @@ import {
   LineElement,
 } from "chart.js";
 import { Bar, Line } from "react-chartjs-2";
+import { useRouter } from "next/router";
 
 const Dashboard: NextPageWithLayout = () => {
+  const router = useRouter();
   const { data } = useSession();
 
   ChartJS.register(
@@ -31,6 +33,11 @@ const Dashboard: NextPageWithLayout = () => {
     Tooltip,
     Legend
   );
+  const { data: accounts, isLoading: accountLoading, isSuccess } = api.accounts.getAllAccounts.useQuery();
+
+  if(!accounts?.length && !accountLoading && isSuccess ) {
+    return router.push('/newAccount');
+  }
 
   const { data: recentTrans, isLoading } =
     api.transactions.getRecentTransactions.useQuery();
@@ -43,12 +50,12 @@ const Dashboard: NextPageWithLayout = () => {
 
   const { data: sumOfSpend, isLoading: spendLoading } = api.charts.getDashboardChartData.useQuery({})
 
-  const totalIncome = chart?.datasets[0]
+  const totalIncome = chart?.datasets[0] && chart?.datasets[0].data.length
     ? Math.floor(
         chart.datasets[0]?.data.reduce((prev, curr) => prev + curr) * 100
       ) / 100
     : 0.0;
-  const totalExpenses = chart?.datasets[1]
+  const totalExpenses = chart?.datasets[1] && chart?.datasets[1].data.length
     ? Math.floor(
         chart.datasets[1]?.data.reduce((prev, curr) => prev + curr) * 100
       ) / 100

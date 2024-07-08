@@ -3,12 +3,18 @@ import TopNav from "./TopNav";
 import NewTransModal from "./NewTransModal";
 import SideNav from './SideNav';
 import { api } from '~/utils/api';
+import { useRouter } from "next/router";
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [checked, setChecked] = useState(false);
+  const router = useRouter();
 
   const newRef = useRef<HTMLDialogElement | null>(null);
-  const { data, isLoading } = api.accounts.getAllAccounts.useQuery();
+  const { data, isLoading, isSuccess } = api.accounts.getAllAccounts.useQuery();
+
+  if(!data && !isLoading && isSuccess ) {
+    return router.push('/newAccount');
+  }
 
   return (
     <div className="drawer xl:drawer-open">

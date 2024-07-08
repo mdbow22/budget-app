@@ -53,12 +53,17 @@ const Home: NextPage = () => {
                 </h2>
               </div>
 
-              <div className="pt-5">
+              <div className="pt-5 flex gap-2">
                 <button
                   className="btn btn-primary rounded-full px-8 text-base-100 shadow active:shadow-inner"
                   onClick={() => void signIn()}
                 >
                   Login
+                </button>
+                <button className="btn btn-primary rounded-full px-8 text-base-100 shadow active:shadow-inner"
+                  onClick={() => ''}
+                >
+                  Demo
                 </button>
               </div>
             </div>
@@ -81,7 +86,7 @@ const Home: NextPage = () => {
           </div>
         </section>
 
-        <section className="w-full py-10">
+        {/* <section className="w-full py-10">
           <ul className="steps w-full pb-5">
             <li className="step step-primary">
               <div className="card mt-5 w-1/4 bg-base-200 shadow-md shadow-zinc-600/30">
@@ -99,7 +104,7 @@ const Home: NextPage = () => {
               </div>
             </li>
           </ul>
-        </section>
+        </section> */}
       </main>
       <footer className="footer bg-secondary p-3 text-neutral-content">
         <h1 className="w-full justify-center font-bold">

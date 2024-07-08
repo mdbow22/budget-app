@@ -1,34 +1,39 @@
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { Prisma, PrismaClient } from "@prisma/client";
 import { DateTime } from 'luxon';
 
 const prisma = new PrismaClient();
+const adapter = PrismaAdapter(prisma);
 
 const seedDB = async () => {
+  
+  const newUser = await adapter.createUser({ name: 'Demo Account', email: 'demo@testemail.com', emailVerified: new Date() })
 
-    const transactions = await prisma.transaction.aggregate({
-      _sum: {
-        amount: true,
-      },
-      where: {
-        AND: [
-          {
-            date: {
-              gte: DateTime.fromISO('2023-02-01').toJSDate(),
-            },
+
+    // const transactions = await prisma.transaction.aggregate({
+    //   _sum: {
+    //     amount: true,
+    //   },
+    //   where: {
+    //     AND: [
+    //       {
+    //         date: {
+    //           gte: DateTime.fromISO('2023-02-01').toJSDate(),
+    //         },
            
-          },
-          {
-            date: {
-              lte: DateTime.fromISO('2023-09-04').toJSDate(),
-            }
-          }
-        ],
-        accountId: 4,
-        //isTransfer: false,
-      }
-    })
+    //       },
+    //       {
+    //         date: {
+    //           lte: DateTime.fromISO('2023-09-04').toJSDate(),
+    //         }
+    //       }
+    //     ],
+    //     accountId: 4,
+    //     //isTransfer: false,
+    //   }
+    // })
 
-    console.log(transactions);
+    // console.log(transactions);
 
   // const fakeUser = await prisma.user.create({
   //   data: {
