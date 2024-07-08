@@ -145,7 +145,7 @@ const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
       </li>
       <li className="">
         <a
-          onClick={() => signOut({ callbackUrl: '/' })}
+          onClick={() => void signOut({ callbackUrl: '/' })}
         >
           Sign out
         </a>

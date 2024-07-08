@@ -50,12 +50,12 @@ const Dashboard: NextPageWithLayout = () => {
 
   const { data: sumOfSpend, isLoading: spendLoading } = api.charts.getDashboardChartData.useQuery({})
 
-  const totalIncome = chart?.datasets[0] && chart?.datasets[0].data.length
+  const totalIncome = chart?.datasets[0]?.data.length
     ? Math.floor(
         chart.datasets[0]?.data.reduce((prev, curr) => prev + curr) * 100
       ) / 100
     : 0.0;
-  const totalExpenses = chart?.datasets[1] && chart?.datasets[1].data.length
+  const totalExpenses = chart?.datasets[1]?.data.length
     ? Math.floor(
         chart.datasets[1]?.data.reduce((prev, curr) => prev + curr) * 100
       ) / 100

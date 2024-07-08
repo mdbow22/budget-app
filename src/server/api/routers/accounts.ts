@@ -108,19 +108,30 @@ export const generateTransactions = async (
     })
     const start = new Date('2024-01-01T00:00:00.000Z');
     const end = new Date();
-    let transactions: any = [];
+    const transactions: {
+        amount: number;
+        description: string;
+        accountId: number;
+        categoryId: number | undefined;
+        date: Date;
+
+    }[] = [];
+
     for(let i = 0; i < 25; i++) {
         const digits = Math.floor((Math.random() * 3) + 1);
         const amount = Math.floor((Math.random() * (10 ** (digits + 2)))) / 100;
         const account = i < 13 ? accountsMade[0]?.id : accountsMade[1]?.id;
         const category = categories.filter(c => c.type === 'credit')?.[Math.floor(Math.random() * categories.length)]?.id;
-        transactions.push({
-            amount,
-            description: faker.commerce.product(),
-            accountId: account,
-            categoryId: category,
-            date: new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
-        })
+        if(account) {
+            transactions.push({
+                amount,
+                description: faker.commerce.product(),
+                accountId: account,
+                categoryId: category,
+                date: new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
+            })
+        }
+        
         
     }
 
@@ -129,14 +140,16 @@ export const generateTransactions = async (
         const amount = (Math.floor((Math.random() * (10 ** (digits + 2)))) / 100) * -1;
         const account = i < 13 ? accountsMade[0]?.id : accountsMade[1]?.id;
         const category = categories.filter(c => c.type === 'debit')?.[Math.floor(Math.random() * categories.length)]?.id;
-
-        transactions.push({
-            amount,
-            description: faker.commerce.product(),
-            accountId: account,
-            categoryId: category,
-            date: new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
-        })
+        if(account) {
+            transactions.push({
+                amount,
+                description: faker.commerce.product(),
+                accountId: account,
+                categoryId: category,
+                date: new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
+            })
+        }
+        
     }
 
     const newTransactions = await prisma.transaction.createMany({

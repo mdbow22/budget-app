@@ -60,11 +60,6 @@ const Home: NextPage = () => {
                 >
                   Login
                 </button>
-                <button className="btn btn-primary rounded-full px-8 text-base-100 shadow active:shadow-inner"
-                  onClick={() => ''}
-                >
-                  Demo
-                </button>
               </div>
             </div>
             <div className="relative flex justify-center">

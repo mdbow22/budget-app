@@ -15,8 +15,8 @@ const NewAccount: NextPageWithLayout = () => {
   const { data: session } = useSession();
   const router = useRouter();
   const demoData = api.accounts.createDemoData.useMutation({
-    onSuccess: () => {
-      router.push('/dashboard')
+    onSuccess: (): void => {
+      void router.push('/dashboard')
     }
   }) 
   const options = [
