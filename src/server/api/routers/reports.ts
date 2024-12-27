@@ -85,4 +85,50 @@ export const reportsRouter = createTRPCRouter({
 
       return chartData;
     }),
+    SpendByCategory: protectedProcedure
+      .input(
+        z.object({
+          startDate: z.date(),
+          endDate: z.date(),
+          categoryId: z.number(),
+        })
+      )
+      .query(async ({ ctx, input }) => {
+        const categorySpend = await ctx.prisma.transaction.findMany({
+          where: {
+            BankAccount: {
+              userId: ctx.session.user.id,
+            },
+            removedDate: null,
+            categoryId: input.categoryId,
+            date: {
+              gte: input.startDate,
+              lte: input.endDate,
+            }
+          },
+          select: {
+            id: true,
+            amount: true,
+            description: true,
+            date: true,
+            BankAccount: {
+              select: {
+                name: true,
+              }
+            },
+            Category: {
+              select: {
+                name: true,
+              }
+            },
+            PayorPayee: {
+              select: {
+                thirdparty: true,
+              }
+            }
+          }
+        });
+
+        return categorySpend;
+      })
 });

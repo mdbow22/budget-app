@@ -114,7 +114,13 @@ const SideNav: React.FC<SideNavProps> = ({ openModal, data, isLoading }) => {
         </details>
       </li>
       <li>
-        <Link href={"/reports"}>Reports</Link>
+        <details>
+        <summary >Reports</summary>
+        <ul>
+          <li><Link href='/reports?type=monthly'>Monthly Spend</Link></li>
+          <li><Link href='/reports?type=byCategory'>Spend by Category</Link></li>
+        </ul>
+        </details>
       </li>
       <li>
         {/* <details open> */}
