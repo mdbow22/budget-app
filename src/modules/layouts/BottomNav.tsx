@@ -9,7 +9,7 @@ import { Decimal } from "@prisma/client/runtime/library";
 import { Separator } from "~/components/ui/separator";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { balance } from "~/utils/functions";
+import { formatCurrency } from "~/utils/functions";
 
 export interface BottomNavProps {
   isLoading: boolean;
@@ -54,7 +54,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ data }) => {
                 >
                   <h3 className="text-3xl font-bold">{account.name}</h3>
                   <span className="font-bold text-xl">
-                    {balance(account.currBalance)}
+                    {formatCurrency(account.currBalance)}
                   </span>
                 </Link>
               </li>

@@ -17,7 +17,7 @@ import {
 import { Line } from "react-chartjs-2";
 import ConfirmDelete from '~/modules/accountPage/ConfirmDelete';
 import TransactionRow from '~/modules/accountPage/TransactionRow';
-import { balance } from "~/utils/functions";
+import { formatCurrency } from "~/utils/functions";
 
 export type DeleteTransaction = {
   id: number;
@@ -106,7 +106,7 @@ const AccountPage: NextPageWithLayout = () => {
               <h1 className="text-3xl font-bold text-accent">
                 {transactions.accountOwner.name}
               </h1>
-              <div className="font-bold">{balance(transactions.accountOwner.currBalance)}</div>
+              <div className="font-bold">{formatCurrency(transactions.accountOwner.currBalance)}</div>
             </div>
             <div className="w-full md:w-1/2">
               <Line

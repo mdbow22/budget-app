@@ -1,4 +1,4 @@
-export const balance = (rawBal: number) => {
+export const formatCurrency = (rawBal: number) => {
     if (rawBal === 0) {
       return "$0.00";
     }
@@ -18,7 +18,7 @@ export const balance = (rawBal: number) => {
           .reverse()
       : stringBal.split("").reverse();
     const negative = rawBal < 0;
-    const cents = rawBal.toString().includes(".")
+    let cents = rawBal.toString().includes(".")
       ? rawBal.toString().substring(
           rawBal
             .toString()
@@ -26,6 +26,10 @@ export const balance = (rawBal: number) => {
             .findIndex((e) => e === ".")
         )
       : ".00";
+    
+    if(cents.length < 3) {
+        cents = cents + '0'
+    }
 
     const formattedBal = reversedBal
       .map((digit, index) => {

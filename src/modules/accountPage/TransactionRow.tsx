@@ -4,6 +4,7 @@ import { DateTime } from "luxon";
 import type { Transaction, PayorPayee, Category } from "@prisma/client";
 import { Pencil, Save, X } from "../../../node_modules/lucide-react";
 import { api } from "~/utils/api";
+import { formatCurrency } from "~/utils/functions";
 
 export type TransactionRowProps = {
   trans: Omit<Transaction, "amount"> & {
@@ -266,7 +267,7 @@ const TransactionRow: React.FC<TransactionRowProps> = ({
             ) : !trans.amount.toString().includes(".") ? (
               trans.amount.toString().concat(".00")
             ) : (
-              trans.amount
+              formatCurrency(trans.amount)
             )}
           </td>
           <td className="text-right">
