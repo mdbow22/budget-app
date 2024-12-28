@@ -1,0 +1,89 @@
+import React, { useState } from "react";
+import {
+  PieChart,
+  Home,
+  List,
+  Settings,
+} from "../../../node_modules/lucide-react";
+import { Decimal } from "@prisma/client/runtime/library";
+import { Separator } from "~/components/ui/separator";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { balance } from "~/utils/functions";
+
+export interface BottomNavProps {
+  isLoading: boolean;
+  data:
+    | {
+        currBalance: number;
+        id: number;
+        name: string;
+        userId: string;
+        type: string;
+        initBalance: Decimal;
+        createdDate: Date;
+        expireDate: Date | null;
+      }[]
+    | undefined;
+}
+
+const BottomNav: React.FC<BottomNavProps> = ({ data }) => {
+    const router = useRouter();
+  const [showAccounts, setShowAccounts] = useState(false);
+
+  const linkClick = (route?: string) => {
+    setShowAccounts(false);
+    return route ? router.push(route) : null;
+  }
+
+  return (
+    <>
+      <section
+        className={`fixed bottom-0 left-0 mb-16 w-full bg-muted p-2 lg:hidden ${
+          showAccounts ? "h-auto opacity-100" : "h-0 opacity-0"
+        } text-foreground transition-all duration-200`}
+      >
+        <ol>
+          {data?.map((account) => {
+            return (
+              <li className=" px-3 py-2">
+                <Link
+                  href={`/accounts/${account.id}`}
+                  className="flex justify-between"
+                  onClick={() => linkClick()}
+                >
+                  <h3 className="text-3xl font-bold">{account.name}</h3>
+                  <span className="font-bold text-xl">
+                    {balance(account.currBalance)}
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ol>
+      </section>
+      <nav className="fixed bottom-0 left-0 grid h-16 w-full grid-cols-4 justify-around bg-muted p-3 text-accent lg:hidden">
+        <button className="flex justify-center" onClick={() => linkClick('/dashboard')}>
+          <Home size={36} />
+        </button>
+        {/* <Separator orientation='vertical' className='bg-foreground' /> */}
+        <button className={`flex justify-center`}>
+          <PieChart size={36} />
+        </button>
+        {/* <Separator orientation='vertical' className='bg-foreground' /> */}
+        <button
+          className={`flex justify-center ${showAccounts && "text-foreground"}`}
+          onClick={() => setShowAccounts((prev) => !prev)}
+        >
+          <List size={36} />
+        </button>
+        {/* <Separator orientation='vertical' className='bg-foreground' /> */}
+        <button className="flex justify-center">
+          <Settings size={36} />
+        </button>
+      </nav>
+    </>
+  );
+};
+
+export default BottomNav;

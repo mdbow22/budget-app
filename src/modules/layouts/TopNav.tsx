@@ -6,7 +6,7 @@ const TopNav: React.FC<{
   setChecked: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({ checked, setChecked }) => {
   return (
-    <nav className="flex h-14 w-full items-center justify-between bg-base-200 px-4 shadow shadow-zinc-600/30 lg:hidden">
+    <nav className="hidden lg:flex xl:flex h-14 w-full items-center justify-between bg-base-200 px-4 shadow shadow-zinc-600/30 lg:hidden">
       <h2 className="text-xl font-bold text-primary">Brand Name Here</h2>
       <div className="flex h-full items-center">
         <label
