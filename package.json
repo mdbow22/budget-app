@@ -23,6 +23,8 @@
     "@trpc/react-query": "^10.26.0",
     "@trpc/server": "^10.26.0",
     "chart.js": "^4.3.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "lucide": "^0.284.0",
     "lucide-react": "^0.284.0",
     "luxon": "^3.4.0",
@@ -33,6 +35,8 @@
     "react-dom": "18.2.0",
     "react-select": "^5.7.4",
     "superjson": "1.12.2",
+    "tailwind-merge": "^2.6.0",
+    "tailwindcss-animate": "^1.0.7",
     "zod": "^3.21.4"
   },
   "devDependencies": {
