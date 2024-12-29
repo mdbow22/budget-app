@@ -264,11 +264,9 @@ const TransactionRow: React.FC<TransactionRowProps> = ({
                 }
                 pattern="\d+\.?(\d{1,2})?"
               />
-            ) : !trans.amount.toString().includes(".") ? (
-              trans.amount.toString().concat(".00")
-            ) : (
+            ) : 
               formatCurrency(trans.amount)
-            )}
+            }
           </td>
           <td className="text-right">
             {isEdit !== trans.id && !noedit && (

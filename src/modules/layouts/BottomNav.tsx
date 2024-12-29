@@ -44,9 +44,9 @@ const BottomNav: React.FC<BottomNavProps> = ({ data }) => {
         } text-foreground transition-all duration-200`}
       >
         <ol>
-          {data?.map((account) => {
+          {data?.map((account, i) => {
             return (
-              <li className=" px-3 py-2">
+              <li className={`px-3 py-2 ${'border-b border-foreground/30'}`}>
                 <Link
                   href={`/accounts/${account.id}`}
                   className="flex justify-between"

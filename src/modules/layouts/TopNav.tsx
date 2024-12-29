@@ -1,14 +1,62 @@
 //import { signOut } from "next-auth/react";
+import { Decimal } from "@prisma/client/runtime/library";
+import { signOut } from "next-auth/react";
+import Link from "next/link";
 import React from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import { Separator } from "~/components/ui/separator";
+import { formatCurrency } from "~/utils/functions";
 
 const TopNav: React.FC<{
-    checked: boolean;
-  setChecked: React.Dispatch<React.SetStateAction<boolean>>;
-}> = ({ checked, setChecked }) => {
+  isLoading: boolean;
+  data:
+    | {
+        currBalance: number;
+        id: number;
+        name: string;
+        userId: string;
+        type: string;
+        initBalance: Decimal;
+        createdDate: Date;
+        expireDate: Date | null;
+      }[]
+    | undefined;
+}> = ({ data }) => {
   return (
-    <nav className="hidden lg:flex xl:flex h-14 w-full items-center justify-between bg-base-200 px-4 shadow shadow-zinc-600/30 lg:hidden">
-      <h2 className="text-xl font-bold text-primary">Brand Name Here</h2>
-      <div className="flex h-full items-center">
+    <nav className="hidden h-14 w-full items-center bg-muted px-4 py-2 shadow shadow-zinc-400/30 lg:flex">
+      <h2 className="text-2xl font-bold text-accent">Balanced Budget</h2>
+      <Separator orientation="vertical" className="mx-4 bg-foreground" />
+      <div className="flex justify-start items-center gap-10">
+      <div className="px-2 py-1 font-bold text-foreground text-lg hover:bg-foreground/20 rounded"><Link href='/dashboard'>Dashboard</Link></div>
+      <DropdownMenu>
+        <DropdownMenuTrigger className="px-2 py-1 font-bold text-foreground text-lg hover:bg-foreground/20 rounded">Accounts</DropdownMenuTrigger>
+        <DropdownMenuContent className="p-0">
+          {data?.map((account) => {
+            return (
+              <DropdownMenuLabel key={account.id} className=" text-md hover:bg-foreground/20">
+                <Link href={`/accounts/${account.id}`}><div>{account.name}</div><div>{formatCurrency(account.currBalance)}</div></Link>
+              </DropdownMenuLabel>
+            );
+          })}
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <div className="px-2 py-1 font-bold text-foreground text-lg hover:bg-foreground/20 rounded">Reports</div>
+      <DropdownMenu>
+        <DropdownMenuTrigger className="px-2 py-1 font-bold text-foreground text-lg hover:bg-foreground/20 rounded">Settings</DropdownMenuTrigger>
+        <DropdownMenuContent className="p-0">
+              <DropdownMenuLabel className="text-md hover:bg-foreground/20" >
+                <a className="cursor-pointer" onClick={() => void signOut({ callbackUrl: '/' })}>Sign Out</a>
+              </DropdownMenuLabel>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      </div>
+      <button type='button' className="ml-auto px-2 py-1 hover:bg-foreground/20 rounded">New Transaction</button>
+      {/* <div className="flex h-full items-center">
         <label
           className="btn btn-ghost drawer-button btn-sm rounded-full h-12"
           htmlFor="my-drawer"
@@ -35,7 +83,7 @@ const TopNav: React.FC<{
             />
           </svg>}
         </label>
-      </div>
+      </div> */}
     </nav>
   );
 };

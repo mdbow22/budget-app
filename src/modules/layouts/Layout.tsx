@@ -7,7 +7,6 @@ import { useRouter } from "next/router";
 import BottomNav from "./BottomNav";
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [checked, setChecked] = useState(false);
   const router = useRouter();
 
   const newRef = useRef<HTMLDialogElement | null>(null);
@@ -19,7 +18,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   return (
     <>
-      <TopNav setChecked={setChecked} checked={checked} />
+      <TopNav data={data} isLoading={isLoading} />
       <main className="min-h-screen">{children}</main>
       <NewTransModal
         ref={newRef}
