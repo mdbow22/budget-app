@@ -18,6 +18,8 @@ import { Line } from "react-chartjs-2";
 import ConfirmDelete from '~/modules/accountPage/ConfirmDelete';
 import TransactionRow from '~/modules/accountPage/TransactionRow';
 import { formatCurrency } from "~/utils/functions";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "~/components/ui/table";
+import TransactionRowNew from "~/modules/accountPage/TransactionRowNew";
 
 export type DeleteTransaction = {
   id: number;
@@ -123,7 +125,7 @@ const AccountPage: NextPageWithLayout = () => {
                 }}
               />
             </div>
-            <table className="table table-zebra table-sm mt-5">
+            {/* <table className="table table-zebra table-sm mt-5">
               <thead>
                 <tr className="text-center text-primary">
                   <th>Date</th>
@@ -141,7 +143,25 @@ const AccountPage: NextPageWithLayout = () => {
                   );
                 })}
               </tbody>
-            </table>
+            </table> */}
+            
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead className="hidden md:table-cell">Description</TableHead>
+                  <TableHead>Payor/Payee</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {transactions.transactions.map((trans) => {
+                  return <TransactionRowNew key={trans.id} modalRef={modalRef} trans={trans} setTransToDel={setTransToDel} />
+                })}
+              </TableBody>
+            </Table>
             {transactions.totalPageCount > 1 && (
               <div className="mt-5 flex justify-center">
                 <Pagination

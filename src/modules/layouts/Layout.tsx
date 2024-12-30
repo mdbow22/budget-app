@@ -19,7 +19,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <>
       <TopNav data={data} isLoading={isLoading} />
-      <main className="min-h-screen">{children}</main>
+      <main className="min-h-screen max-w-7xl mx-auto">{children}</main>
       <NewTransModal
         ref={newRef}
         accounts={data?.map((account) => ({
