@@ -43,7 +43,7 @@ const TransactionRowNew: React.FC<TransactionRowProps> = ({
       <TableCell>{trans.Category?.name}</TableCell>
       <TableCell className="hidden md:table-cell">{trans.description}</TableCell>
       <TableCell>{trans.PayorPayee?.thirdparty}</TableCell>
-      <TableCell>{formatCurrency(trans.amount)}</TableCell>
+      <TableCell className="text-right">{formatCurrency(trans.amount)}</TableCell>
       <TableCell>
         {!noedit && setTransToDel && modalRef && (
           <div className="tooltip tooltip-accent" data-tip="Delete">

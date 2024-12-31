@@ -104,13 +104,13 @@ const AccountPage: NextPageWithLayout = () => {
             <title>Account | {transactions.accountOwner.name}</title>
           </Head>
           <div className="p-5">
-            <div className="">
+            <div className="mb-5">
               <h1 className="text-3xl font-bold text-accent">
                 {transactions.accountOwner.name}
               </h1>
               <div className="font-bold">{formatCurrency(transactions.accountOwner.currBalance)}</div>
             </div>
-            <div className="w-full md:w-1/2">
+            {/* <div className="w-full md:w-1/2">
               <Line
                 data={chartData}
                 options={{
@@ -124,7 +124,7 @@ const AccountPage: NextPageWithLayout = () => {
                   },
                 }}
               />
-            </div>
+            </div> */}
             {/* <table className="table table-zebra table-sm mt-5">
               <thead>
                 <tr className="text-center text-primary">
@@ -147,7 +147,7 @@ const AccountPage: NextPageWithLayout = () => {
             
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="bg-muted hover:bg-muted">
                   <TableHead>Date</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead className="hidden md:table-cell">Description</TableHead>

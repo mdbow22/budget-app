@@ -5,6 +5,7 @@ import SideNav from "./SideNav";
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
 import BottomNav from "./BottomNav";
+import { DateTime } from "luxon";
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const router = useRouter();
@@ -27,9 +28,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           name: account.name,
         }))}
       />
-      <footer className="footer bg-secondary p-1 text-neutral-content mb-16">
+      <footer className="footer bg-secondary p-1 text-neutral-content mb-16 lg:mb-0">
         <h1 className="w-full justify-center font-bold">
-          Copyright &copy; 2023
+          Copyright &copy; {DateTime.now().year}
         </h1>
       </footer>
       <BottomNav isLoading={isLoading} data={data} />
