@@ -10,6 +10,9 @@ import { Separator } from "~/components/ui/separator";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { formatCurrency } from "~/utils/functions";
+import { Dialog } from "~/components/ui/dialog";
+import { DialogTrigger } from "@radix-ui/react-dialog";
+import NewTransaction from "./NewTransaction";
 
 export interface BottomNavProps {
   isLoading: boolean;
@@ -30,6 +33,7 @@ export interface BottomNavProps {
 const BottomNav: React.FC<BottomNavProps> = ({ data }) => {
   const router = useRouter();
   const [showAccounts, setShowAccounts] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const linkClick = (route?: string) => {
     setShowAccounts(false);
@@ -51,14 +55,9 @@ const BottomNav: React.FC<BottomNavProps> = ({ data }) => {
             >
               Create Account
             </button>
-            <button
-              type="button"
-              className="rounded-lg border border-foreground/20 px-2 py-1"
-            >
-              Add Transaction
-            </button>
+              <NewTransaction accounts={data?.map(d => ({ id: d.id, name: d.name }))} triggerClassName="rounded-lg border border-foreground/20 px-2 py-1" />
           </li>
-          
+
           {data?.map((account, i) => {
             return (
               <li className="px-2" key={account.id}>

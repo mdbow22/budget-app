@@ -1,7 +1,6 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import TopNav from "./TopNav";
 import NewTransModal from "./NewTransModal";
-import SideNav from "./SideNav";
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
 import BottomNav from "./BottomNav";

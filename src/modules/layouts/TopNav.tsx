@@ -2,7 +2,8 @@
 import { Decimal } from "@prisma/client/runtime/library";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
+import { Dialog, DialogTrigger } from "~/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,6 +12,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { Separator } from "~/components/ui/separator";
 import { formatCurrency } from "~/utils/functions";
+import NewTransaction from "./NewTransaction";
 
 const TopNav: React.FC<{
   isLoading: boolean;
@@ -27,6 +29,8 @@ const TopNav: React.FC<{
       }[]
     | undefined;
 }> = ({ data }) => {
+  const [open, setOpen] = useState(false);
+
   return (
     <nav className="hidden h-14 w-full items-center bg-muted px-4 py-2 shadow shadow-zinc-400/30 lg:flex">
       <h2 className="text-2xl font-bold text-accent">Balanced Budget</h2>
@@ -74,40 +78,10 @@ const TopNav: React.FC<{
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <button
-        type="button"
-        className="ml-auto rounded px-3 py-1 hover:bg-foreground/20"
-      >
-        New Transaction
-      </button>
-      {/* <div className="flex h-full items-center">
-        <label
-          className="btn btn-ghost drawer-button btn-sm rounded-full h-12"
-          htmlFor="my-drawer"
-          onClick={() => setChecked((prev) => !prev)}
-        >
-          {checked ?
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-        
-          :
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="h-6 w-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-            />
-          </svg>}
-        </label>
-      </div> */}
+      <NewTransaction
+        accounts={data?.map((d) => ({ id: d.id, name: d.name }))}
+        triggerClassName="ml-auto rounded px-3 py-1 hover:bg-foreground/20"
+      />
     </nav>
   );
 };
