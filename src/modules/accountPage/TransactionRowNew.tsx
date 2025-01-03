@@ -55,7 +55,7 @@ const TransactionRowNew: React.FC<TransactionRowProps> = ({
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const queryContext = api.useContext();
-  const { data: categories } = api.misc.getUserCategories.useQuery();
+  const { data: categories, isLoading: categoriesLoading } = api.misc.getUserCategories.useQuery();
   const { data: thirdParties, isLoading: partiesLoading } =
     api.misc.getUserPayorPayees.useQuery();
   const updateMutation = api.transactions.editTransaction.useMutation({
@@ -182,7 +182,14 @@ const TransactionRowNew: React.FC<TransactionRowProps> = ({
           DateTime.fromJSDate(trans.date).toFormat("MM/dd/yy")
         )}
       </TableCell>
-      <TableCell>{trans.Category?.name}</TableCell>
+      <TableCell>{editMode ? (<>
+        <Input type='text' list='categories' value={editedTrans.category} onChange={(e) => dispatch({ type: 'setField', payload: { field: 'category', value: e.target.value}})} />
+        {!categoriesLoading && <datalist id='categories'>
+            {categories?.filter(cat => editedTrans.amount > 0 ? cat.type === 'credit' : cat.type === 'debit')?.map(cat => {
+              return <option value={cat.name} key={cat.id} />
+            })}
+          </datalist>}
+      </>) : trans.Category?.name}</TableCell>
       <TableCell className="hidden md:table-cell">
         {editMode ? (
           <Input
@@ -198,7 +205,16 @@ const TransactionRowNew: React.FC<TransactionRowProps> = ({
           trans.description
         )}
       </TableCell>
-      <TableCell>{trans.PayorPayee?.thirdparty}</TableCell>
+      <TableCell>{editMode ? (<>
+        <Input type='text' list='thirdParties' value={editedTrans.thirdParty} onChange={(e) => dispatch({ type: 'setField', payload: { field: 'thirdParty', value: e.target.value }})} />
+        {!partiesLoading && <datalist id='thirdParties'>
+            {thirdParties?.map(party => {
+              return (
+                <option value={party.thirdparty} key={party.id} />
+              )
+            })}
+          </datalist>}
+      </>) : trans.PayorPayee?.thirdparty}</TableCell>
       <TableCell className="w-28 text-right ">
         {editMode ? (
           <Input
