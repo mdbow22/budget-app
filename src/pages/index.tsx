@@ -2,6 +2,7 @@ import type { GetServerSideProps, NextPage } from "next";
 import { getServerSession } from "next-auth";
 import { signIn } from "next-auth/react";
 import Head from "next/head";
+import { Button } from "~/components/ui/button";
 import { authOptions } from "~/server/auth";
 
 //how this should work: if !session => load homepage, if session => redirect to user dashboard
@@ -34,18 +35,18 @@ const Home: NextPage = () => {
         <meta name="description" content="Own Your Own Finances" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className=" flex min-h-screen flex-col items-center bg-base-100">
-        <section className="flex h-1/2 justify-center overflow-hidden bg-base-200 shadow-md shadow-zinc-600/30">
-          <div className="flex flex-col overflow-hidden px-4 pt-3 md:grid md:w-2/3 md:grid-cols-2 md:px-0 md:pt-0">
-            <div className="flex h-full flex-col justify-center">
+      <main className=" flex min-h-screen flex-col items-center justify-center">
+        <section className="flex min-h-screen md:min-h-fit md:h-1/2 justify-center overflow-hidden bg-muted shadow-md shadow-zinc-600/30 p-10 max-w-6xl w-full rounded-lg">
+          {/* <div className="flex flex-col overflow-hidden px-4 pt-3 md:grid text-center w-full md:grid-cols-2 md:px-0 md:pt-0"> */}
+            <div className="flex h-full w-full flex-col justify-center">
               <div>
-                <h1 className="text-5xl font-bold text-primary pb-3">
+                <h1 className="text-5xl font-bold text-accent pb-3">
                   BALANCED BUDGET
                 </h1>
-                <h1 className="text-3xl font-bold text-secondary">
+                <h1 className="text-3xl font-bold text-foreground">
                   Your Money, Your Way.
                 </h1>
-                <h2 className="text-lg">
+                <h2 className="text-lg text-foreground mt-3">
                   Stop letting other companies tell you how you&apos;re spending money,
                   and get back into control of your finances. In an age
                   where stores and ecommerce sell everything from diapers to
@@ -54,15 +55,15 @@ const Home: NextPage = () => {
               </div>
 
               <div className="pt-5 flex gap-2">
-                <button
-                  className="btn btn-primary rounded-full px-8 text-base-100 shadow active:shadow-inner"
+                <Button
+                  className="text-lg bg-accent font-bold rounded-full px-8 shadow-md shadow-zinc-600/30 active:shadow-inner active:shadow-zinc-200"
                   onClick={() => void signIn()}
                 >
                   Login
-                </button>
+                </Button>
               </div>
             </div>
-            <div className="relative flex justify-center">
+            {/* <div className="relative flex justify-center">
               <div
                 className="mockup-phone border"
                 style={{ position: "relative", top: "50px" }}
@@ -70,15 +71,15 @@ const Home: NextPage = () => {
                 <div className="camera" style={{ width: "117px" }}></div>
                 <div className="display">
                   <div
-                    className="artboard artboard-demo phone-1"
+                    className="artboard artboard-demo phone-1 bg-white"
                     style={{ width: "250px", height: "444px" }}
                   >
                     Hi.
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </div> */}
+          {/* </div> */}
         </section>
 
         {/* <section className="w-full py-10">
