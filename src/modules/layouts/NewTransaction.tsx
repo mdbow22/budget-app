@@ -79,6 +79,7 @@ const NewTransaction: React.FC<TransModalProps> = ({ accounts }) => {
       await context.charts.getDashboardChartData.invalidate();
       await context.charts.getDashboardLineChartData.invalidate();
       await context.accounts.getAllAccounts.invalidate();
+      await context.transactions.getAccountTransactions.invalidate()
     },
   });
 
