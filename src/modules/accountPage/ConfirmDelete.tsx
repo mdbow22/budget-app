@@ -1,25 +1,61 @@
-import type { DeleteTransaction } from '~/pages/accounts/[id]';
-import { X } from '../../../node_modules/lucide-react';
+import type { DeleteTransaction } from "~/pages/accounts/[id]";
+import { X } from "../../../node_modules/lucide-react";
 import React from "react";
+import { Dialog, DialogClose, DialogContent } from "~/components/ui/dialog";
+import { Button } from "~/components/ui/button";
+import { formatCurrency } from "~/utils/functions";
 
 export type ConfirmDeleteProps = {
   close: () => void;
   trans: DeleteTransaction | undefined;
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const ConfirmDelete = React.forwardRef<HTMLDialogElement, ConfirmDeleteProps>(
-  ({ close, trans }, ref) => {
+const ConfirmDelete: React.FC<ConfirmDeleteProps> = ({
+  close,
+  trans,
+  open,
+  setOpen,
+}) => {
+  const deleteTrans = (
+    e: React.SyntheticEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
 
-    const deleteTrans = (e: React.SyntheticEvent<HTMLButtonElement, MouseEvent>) => {
-        e.preventDefault();
-        e.stopPropagation();
+    close();
+  };
 
-        close()
-    }
-
-    return (
-      <>
-        <dialog
+  return (
+    <Dialog open={open} onOpenChange={() => setOpen((prev) => !prev)}>
+      <DialogContent>
+        <h2 className="text-lg font-bold">
+          Are you sure you want to delete this transaction?
+        </h2>
+        <div>
+          Paid To/From:{" "}
+          {trans?.payorPayee
+            ? trans.payorPayee
+            : trans?.isTransfer
+            ? "Transfer"
+            : "N/A"}
+          , Date: {trans?.date}, Amount: {trans && formatCurrency(trans.amount)}
+        </div>
+        <DialogClose asChild>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={(e) => {
+              deleteTrans(e);
+              setOpen(false);
+            }}
+          >
+            DELETE
+          </Button>
+        </DialogClose>
+      </DialogContent>
+      {/* <dialog
           ref={ref}
           id="confirm-delete-modal"
           className="modal modal-bottom md:modal-middle"
@@ -38,11 +74,10 @@ const ConfirmDelete = React.forwardRef<HTMLDialogElement, ConfirmDeleteProps>(
             </button>
             </div>
           </div>
-        </dialog>
-      </>
-    );
-  }
-);
+        </dialog> */}
+    </Dialog>
+  );
+};
 
 ConfirmDelete.displayName = "ConfirmDelete";
 

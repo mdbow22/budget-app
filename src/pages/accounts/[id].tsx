@@ -34,6 +34,7 @@ const AccountPage: NextPageWithLayout = () => {
   const [page, setPage] = useState(0);
   const modalRef = useRef<HTMLDialogElement>(null);
   const [transToDel, setTransToDel] = useState<DeleteTransaction>();
+  const [open, setOpen] = useState(false);
 
   ChartJS.register(
     CategoryScale,
@@ -66,6 +67,11 @@ const AccountPage: NextPageWithLayout = () => {
         enabled: !!query.id,
       }
     );
+
+  const handleModalOpen = (trans: DeleteTransaction) => {
+    setOpen(true);
+    setTransToDel(trans)
+  }
 
   const deleteMutation = api.transactions.deleteTransaction.useMutation({
     onSuccess: async () => {
@@ -158,7 +164,7 @@ const AccountPage: NextPageWithLayout = () => {
               </TableHeader>
               <TableBody>
                 {transactions.transactions.map((trans) => {
-                  return <TransactionRowNew key={trans.id} modalRef={modalRef} trans={trans} setTransToDel={setTransToDel} />
+                  return <TransactionRowNew key={trans.id} trans={trans} handleModalOpen={handleModalOpen} />
                 })}
               </TableBody>
             </Table>
@@ -172,7 +178,7 @@ const AccountPage: NextPageWithLayout = () => {
               </div>
             )}
           </div>
-          <ConfirmDelete close={() => deleteTransaction()} trans={transToDel} ref={modalRef} />
+          <ConfirmDelete close={() => deleteTransaction()} trans={transToDel} open={open} setOpen={setOpen} />
         </>
       )}
     </>
