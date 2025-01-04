@@ -159,7 +159,7 @@ const Dashboard: NextPageWithLayout = () => {
                   return (
                     <TableRow>
                       <TableCell colSpan={6}>
-                        <Skeleton className="h-8 w-full" />
+                        <Skeleton className="h-6 w-full" />
                       </TableCell>
                     </TableRow>
                   );
