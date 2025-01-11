@@ -35,10 +35,10 @@ const BottomNav: React.FC<BottomNavProps> = ({ data }) => {
   const [showAccounts, setShowAccounts] = useState(false);
   const [open, setOpen] = useState(false);
 
-  const linkClick = (route?: string) => {
+  const linkClick = async (route?: string) => {
     setShowAccounts(false);
     if(route) {
-      router.push(route);
+      await router.push(route);
     }
   };
 

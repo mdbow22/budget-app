@@ -139,7 +139,7 @@ const AccountPage: NextPageWithLayout = () => {
               </TableHeader>
               <TableBody>
                 {[...Array(15)].map(i => {
-                  return (<TableRow>
+                  return (<TableRow key={i}>
                     <TableCell colSpan={6}>
                       <Skeleton className="h-6 w-full" />
                     </TableCell>
