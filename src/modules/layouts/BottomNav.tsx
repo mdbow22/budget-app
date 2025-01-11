@@ -37,7 +37,9 @@ const BottomNav: React.FC<BottomNavProps> = ({ data }) => {
 
   const linkClick = (route?: string) => {
     setShowAccounts(false);
-    return route ? router.push(route) : null;
+    if(route) {
+      router.push(route);
+    }
   };
 
   return (

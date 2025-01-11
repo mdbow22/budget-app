@@ -277,7 +277,7 @@ const NewTransaction: React.FC<TransModalProps> = ({ accounts }) => {
                     ?.sort((a, b) => a.name.localeCompare(b.name))
                     .map((account) => {
                       return (
-                        <SelectItem value={account.id.toString()}>
+                        <SelectItem value={account.id.toString()} key={account.id}>
                           {account.name}
                         </SelectItem>
                       );
@@ -304,7 +304,7 @@ const NewTransaction: React.FC<TransModalProps> = ({ accounts }) => {
                       ?.sort((a, b) => a.name.localeCompare(b.name))
                       .map((account) => {
                         return (
-                          <SelectItem value={account.id.toString()}>
+                          <SelectItem value={account.id.toString()} key={account.id}>
                             {account.name}
                           </SelectItem>
                         );

@@ -157,7 +157,7 @@ const Dashboard: NextPageWithLayout = () => {
                 })
               : [...Array(10)].map((item) => {
                   return (
-                    <TableRow>
+                    <TableRow key={item}>
                       <TableCell colSpan={6}>
                         <Skeleton className="h-6 w-full" />
                       </TableCell>
