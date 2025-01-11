@@ -1,5 +1,4 @@
 import type { DeleteTransaction } from "~/pages/accounts/[id]";
-import { X } from "../../../node_modules/lucide-react";
 import React from "react";
 import { Dialog, DialogClose, DialogContent } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";

@@ -2,7 +2,6 @@ import { DateTime } from "luxon";
 import {
   ArrowLeftRight,
   CalendarIcon,
-  Check,
   Minus,
   Plus,
 } from "../../../node_modules/lucide-react";
@@ -59,12 +58,9 @@ const NewTransaction: React.FC<TransModalProps> = ({ accounts }) => {
   const [open, setOpen] = useState(false);
   const [filteredCats, setFilteredCats] =
     useState<{ name: string; id: number }[]>();
-  const [typeAhead, setTypeAhead] = useState<{ name: string; id: number }[]>(
-    []
-  );
   const context = api.useContext();
   const { data: categories } = api.misc.getUserCategories.useQuery();
-  const { data: thirdParties, isLoading: partiesLoading } =
+  const { data: thirdParties } =
     api.misc.getUserPayorPayees.useQuery();
 
   if (categories && !filteredCats) {
@@ -220,7 +216,6 @@ const NewTransaction: React.FC<TransModalProps> = ({ accounts }) => {
                   ? categories.filter((cats) => cats.type === "credit")
                   : [];
                 setFilteredCats(filtered);
-                setTypeAhead(filtered);
               }}
             >
               <Plus />
@@ -236,7 +231,6 @@ const NewTransaction: React.FC<TransModalProps> = ({ accounts }) => {
                   ? categories.filter((cats) => cats.type === "debit")
                   : [];
                 setFilteredCats(filtered);
-                setTypeAhead(filtered);
               }}
             >
               <Minus />
@@ -252,7 +246,6 @@ const NewTransaction: React.FC<TransModalProps> = ({ accounts }) => {
                   ? categories.filter((cats) => cats.type === "trans")
                   : [];
                 setFilteredCats(filtered);
-                setTypeAhead(filtered);
               }}
             >
               <ArrowLeftRight />

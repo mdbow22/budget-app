@@ -5,13 +5,10 @@ import {
   List,
   Settings,
 } from "../../../node_modules/lucide-react";
-import { Decimal } from "@prisma/client/runtime/library";
-import { Separator } from "~/components/ui/separator";
+import type { Decimal } from "@prisma/client/runtime/library";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { formatCurrency } from "~/utils/functions";
-import { Dialog } from "~/components/ui/dialog";
-import { DialogTrigger } from "@radix-ui/react-dialog";
 import NewTransaction from "./NewTransaction";
 
 export interface BottomNavProps {
@@ -33,12 +30,11 @@ export interface BottomNavProps {
 const BottomNav: React.FC<BottomNavProps> = ({ data }) => {
   const router = useRouter();
   const [showAccounts, setShowAccounts] = useState(false);
-  const [open, setOpen] = useState(false);
 
-  const linkClick = async (route?: string) => {
+  const linkClick = (route?: string) => {
     setShowAccounts(false);
-    if(route) {
-      await router.push(route);
+    if (route) {
+      router.push(route).catch((err) => console.error('redirect failed: ', err));
     }
   };
 
@@ -57,16 +53,21 @@ const BottomNav: React.FC<BottomNavProps> = ({ data }) => {
             >
               Create Account
             </button>
-              <NewTransaction accounts={data?.map(d => ({ id: d.id, name: d.name }))} triggerClassName="rounded-lg border border-foreground/20 px-2 py-1" />
+            <NewTransaction
+              accounts={data?.map((d) => ({ id: d.id, name: d.name }))}
+              triggerClassName="rounded-lg border border-foreground/20 px-2 py-1"
+            />
           </li>
 
-          {data?.map((account, i) => {
+          {data?.map((account) => {
             return (
               <li className="px-2" key={account.id}>
                 <Link
                   href={`/accounts/${account.id}`}
                   className="flex justify-between"
-                  onClick={() => linkClick()}
+                  onClick={() => {
+                    linkClick();
+                  }}
                 >
                   <h3 className="text-xl font-bold ">{account.name}</h3>
                   <span className="text-lg font-bold">
@@ -81,7 +82,9 @@ const BottomNav: React.FC<BottomNavProps> = ({ data }) => {
       <nav className="fixed bottom-0 left-0 grid h-16 w-full grid-cols-4 justify-around bg-muted p-3 text-accent lg:hidden">
         <button
           className="flex justify-center"
-          onClick={() => linkClick("/dashboard")}
+          onClick={() => {
+            linkClick("/dashboard");
+          }}
         >
           <Home size={36} />
         </button>

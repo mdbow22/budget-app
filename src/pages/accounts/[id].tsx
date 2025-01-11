@@ -14,9 +14,7 @@ import {
   Tooltip,
   Title,
 } from "chart.js";
-import { Line } from "react-chartjs-2";
 import ConfirmDelete from "~/modules/accountPage/ConfirmDelete";
-import TransactionRow from "~/modules/accountPage/TransactionRow";
 import { formatCurrency } from "~/utils/functions";
 import {
   Table,

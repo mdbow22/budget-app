@@ -1,12 +1,5 @@
 import React from "react";
 import { ChevronLeft, ChevronRight } from "../../../node_modules/lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "~/components/ui/select";
-import { SelectValue } from "@radix-ui/react-select";
 
 export interface PaginationProps {
   totalPages: number;

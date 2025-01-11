@@ -1,9 +1,8 @@
 //import { signOut } from "next-auth/react";
-import { Decimal } from "@prisma/client/runtime/library";
+import type { Decimal } from "@prisma/client/runtime/library";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
-import React, { useState } from "react";
-import { Dialog, DialogTrigger } from "~/components/ui/dialog";
+import React from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,7 +28,6 @@ const TopNav: React.FC<{
       }[]
     | undefined;
 }> = ({ data }) => {
-  const [open, setOpen] = useState(false);
 
   return (
     <nav className="hidden h-14 w-full items-center bg-muted px-4 py-2 shadow shadow-zinc-400/30 lg:flex">
