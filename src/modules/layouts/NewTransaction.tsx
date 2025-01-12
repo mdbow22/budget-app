@@ -252,7 +252,7 @@ const NewTransaction: React.FC<TransModalProps> = ({ accounts }) => {
             </button>
           </div>
           <div className="mt-3 flex w-full gap-3">
-            <div className="w-full">
+            <div className={`w-full ${submitted && !form.account && 'text-destructive'}`}>
               <Label>{posNeg === "trans" ? "From" : "Account"}</Label>
               <Select
                 onValueChange={(e) =>
@@ -279,7 +279,7 @@ const NewTransaction: React.FC<TransModalProps> = ({ accounts }) => {
               </Select>
             </div>
             {posNeg === "trans" && (
-              <div className="w-full">
+              <div className={`w-full ${submitted && !form.account2 && 'text-destructive'}`}>
                 <Label>To</Label>
                 <Select
                   onValueChange={(e) =>
@@ -308,7 +308,7 @@ const NewTransaction: React.FC<TransModalProps> = ({ accounts }) => {
             )}
           </div>
           <div className="mt-3 flex w-full gap-3">
-            <div className="w-full">
+            <div className={`w-full ${submitted && !form.date && 'text-destructive'}`}>
               <Label>Date</Label>
               <div className="w-full">
                 <Popover>
@@ -347,7 +347,7 @@ const NewTransaction: React.FC<TransModalProps> = ({ accounts }) => {
                 </Popover>
               </div>
             </div>
-            <div className="w-full">
+            <div className={`w-full ${submitted && !form.amount && 'text-destructive'}`}>
               <Label className="">Amount</Label>
               <Input
                 type="text"
@@ -364,7 +364,7 @@ const NewTransaction: React.FC<TransModalProps> = ({ accounts }) => {
             </div>
           </div>
           <div className="mt-3 flex w-full gap-3">
-            <div className="w-full">
+            <div className={`w-full ${submitted && !form.category && 'text-destructive'}`}>
               <Label>Category</Label>
               <Input
                 type="text"
@@ -407,7 +407,7 @@ const NewTransaction: React.FC<TransModalProps> = ({ accounts }) => {
               </datalist>
             </div>
             {posNeg !== "trans" && (
-              <div className="w-full">
+              <div className={`w-full ${submitted && !form.payorPayee && 'text-destructive'}`}>
                 <Label>Payor/Payee</Label>
                 <Input
                   type="text"
