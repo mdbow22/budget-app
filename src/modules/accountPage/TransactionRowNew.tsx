@@ -34,7 +34,6 @@ export type TransactionRowProps = {
     Category: Category | null;
   };
   handleModalOpen: (trans: DeleteTransaction) => void;
-  noedit?: boolean;
 };
 
 export type EditTransFormType = {
@@ -49,7 +48,6 @@ export type EditTransFormType = {
 const TransactionRowNew: React.FC<TransactionRowProps> = ({
   trans,
   handleModalOpen,
-  noedit,
 }) => {
   const [editMode, setEditMode] = useState(false);
   const [submitted, setSubmitted] = useState(false);
