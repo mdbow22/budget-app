@@ -1,4 +1,5 @@
 import React from "react";
+import { ChevronLeft, ChevronRight } from "../../../node_modules/lucide-react";
 
 export interface PaginationProps {
   totalPages: number;
@@ -17,23 +18,23 @@ const Pagination: React.FC<PaginationProps> = ({
       arr.push(i);
     }
 
-    if (totalPages < 6) {
+    if (totalPages < 4) {
       return arr;
     }
 
     if (currentPage < 3) {
-      return arr.filter((p) => p < 5);
+      return arr.filter((p) => p < 3);
     }
 
-    if (currentPage >= totalPages - 5) {
-      return arr.splice(-5);
+    if (currentPage >= totalPages - 3) {
+      return arr.splice(-3);
     }
 
     if (currentPage >= 3) {
       return arr.filter(
         (p) =>
-          (p >= currentPage && p < currentPage + 3) ||
-          (p <= currentPage && p > currentPage - 3)
+          (p >= currentPage && p < currentPage + 2) ||
+          (p <= currentPage && p > currentPage - 2)
       );
     }
 
@@ -41,26 +42,19 @@ const Pagination: React.FC<PaginationProps> = ({
   };
 
   return (
-    <div className="join">
+    <div className="flex items-center justify-between gap-3">
       <button
         type="button"
-        className="btn join-item"
-        onClick={() => setPage(0)}
-      >
-        {"<<"}
+        className="flex items-center px-2 py-1"
+        onClick={() => currentPage !== 0 ? setPage((prev) => prev - 1) : null}
+      ><ChevronLeft size={18} /> Prev
       </button>
-      <button
-        type="button"
-        className="btn join-item"
-        onClick={() => setPage((prev) => prev - 1)}
-      >
-        {"<"}
-      </button>
+
       {paginateArr().map((p) => {
         return (
           <button
             type="button"
-            className="btn join-item"
+            className={`px-2 py-1 ${p === currentPage && 'border border-foreground rounded-lg'}`}
             key={p}
             onClick={() => setPage(p)}
             disabled={p === currentPage}
@@ -69,33 +63,18 @@ const Pagination: React.FC<PaginationProps> = ({
           </button>
         );
       })}
-      {currentPage < totalPages - 3 && (
-        <>
-          <button type="button" className="btn join-item pointer-events-none">
-            &hellip;
-          </button>
-          <button
-            type="button"
-            className="btn join-item"
-            onClick={() => setPage(totalPages - 1)}
-          >
-            {totalPages}
-          </button>
+      {currentPage < totalPages - 3 && (<>... 
+        <button type="button" onClick={() => setPage(totalPages - 1)} className="px-2 py-1">
+          {totalPages}
+        </button>
         </>
       )}
       <button
         type="button"
-        className="btn join-item"
-        onClick={() => setPage((prev) => ++prev)}
+        className="flex items-center"
+        onClick={() => currentPage !== totalPages - 1 ? setPage((prev) => ++prev) : null}
       >
-        {">"}
-      </button>
-      <button
-        type="button"
-        className="btn join-item"
-        onClick={() => setPage(totalPages - 1)}
-      >
-        {">>"}
+        Next <ChevronRight size={18} />
       </button>
     </div>
   );

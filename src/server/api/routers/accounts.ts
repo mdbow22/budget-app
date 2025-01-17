@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import type { Decimal, DefaultArgs } from "@prisma/client/runtime/library";
-import { Prisma, PrismaClient } from "@prisma/client";
+import type { Prisma, PrismaClient } from "@prisma/client";
 import { faker } from '@faker-js/faker';
 
 export type AccountOptBal = {

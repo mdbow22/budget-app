@@ -14,9 +14,18 @@ import {
   Tooltip,
   Title,
 } from "chart.js";
-import { Line } from "react-chartjs-2";
-import ConfirmDelete from '~/modules/accountPage/ConfirmDelete';
-import TransactionRow from '~/modules/accountPage/TransactionRow';
+import ConfirmDelete from "~/modules/accountPage/ConfirmDelete";
+import { formatCurrency } from "~/utils/functions";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/components/ui/table";
+import TransactionRowNew from "~/modules/accountPage/TransactionRowNew";
+import { Skeleton } from "~/components/ui/skeleton";
 
 export type DeleteTransaction = {
   id: number;
@@ -24,13 +33,14 @@ export type DeleteTransaction = {
   payorPayee: string | undefined;
   date: string;
   isTransfer: boolean;
-}
+};
 
 const AccountPage: NextPageWithLayout = () => {
   const { query } = useRouter();
   const [page, setPage] = useState(0);
   const modalRef = useRef<HTMLDialogElement>(null);
   const [transToDel, setTransToDel] = useState<DeleteTransaction>();
+  const [open, setOpen] = useState(false);
 
   ChartJS.register(
     CategoryScale,
@@ -41,7 +51,7 @@ const AccountPage: NextPageWithLayout = () => {
     Title
   );
   const context = api.useContext();
-  const { data: transactions } =
+  const { data: transactions, isLoading } =
     api.transactions.getAccountTransactions.useQuery(
       {
         accountId: parseInt(query.id as string),
@@ -54,15 +64,20 @@ const AccountPage: NextPageWithLayout = () => {
       }
     );
 
-  const { data: chartData } =
-    api.charts.getAccountLineChart.useQuery(
-      {
-        accountId: parseInt(query.id as string),
-      },
-      {
-        enabled: !!query.id,
-      }
-    );
+  // const { data: chartData } =
+  //   api.charts.getAccountLineChart.useQuery(
+  //     {
+  //       accountId: parseInt(query.id as string),
+  //     },
+  //     {
+  //       enabled: !!query.id,
+  //     }
+  //   );
+
+  const handleModalOpen = (trans: DeleteTransaction) => {
+    setOpen(true);
+    setTransToDel(trans);
+  };
 
   const deleteMutation = api.transactions.deleteTransaction.useMutation({
     onSuccess: async () => {
@@ -73,10 +88,11 @@ const AccountPage: NextPageWithLayout = () => {
   });
 
   const deleteTransaction = () => {
+    const trans = transactions?.transactions.find(
+      (t) => t.id === transToDel?.id
+    );
 
-    const trans = transactions?.transactions.find(t => t.id === transToDel?.id)
-
-    if(!trans) {
+    if (!trans) {
       return null;
     }
 
@@ -95,18 +111,58 @@ const AccountPage: NextPageWithLayout = () => {
 
   return (
     <>
-      {transactions && chartData && (
+      {isLoading && (
+        <>
+          <div className="p-5">
+            <div className="mb-5">
+              <h1 className="text-3xl font-bold text-accent">
+                <Skeleton className="h-10 w-1/2 md:w-1/4" />
+              </h1>
+              <div className="mt-2">
+                <Skeleton className="h-4 w-1/3 md:w-1/6" />
+              </div>
+            </div>
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted hover:bg-muted">
+                  <TableHead>Date</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    Description
+                  </TableHead>
+                  <TableHead>Payor/Payee</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {[...Array(15)].map(i => {
+                  return (<TableRow key={i}>
+                    <TableCell colSpan={6}>
+                      <Skeleton className="h-6 w-full" />
+                    </TableCell>
+                  </TableRow>)
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </>
+      )}
+      {transactions && !isLoading && (
         <>
           <Head>
             <title>Account | {transactions.accountOwner.name}</title>
           </Head>
           <div className="p-5">
-            <div className="flex items-end justify-between">
-              <h1 className="text-2xl font-bold">
+            <div className="mb-5">
+              <h1 className="text-3xl font-bold text-accent">
                 {transactions.accountOwner.name}
               </h1>
+              <div className="font-bold">
+                {formatCurrency(transactions.accountOwner.currBalance)}
+              </div>
             </div>
-            <div className="w-full md:w-1/2">
+            {/* <div className="w-full md:w-1/2">
               <Line
                 data={chartData}
                 options={{
@@ -120,8 +176,8 @@ const AccountPage: NextPageWithLayout = () => {
                   },
                 }}
               />
-            </div>
-            <table className="table table-zebra table-sm mt-5">
+            </div> */}
+            {/* <table className="table table-zebra table-sm mt-5">
               <thead>
                 <tr className="text-center text-primary">
                   <th>Date</th>
@@ -139,7 +195,33 @@ const AccountPage: NextPageWithLayout = () => {
                   );
                 })}
               </tbody>
-            </table>
+            </table> */}
+
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted hover:bg-muted">
+                  <TableHead>Date</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    Description
+                  </TableHead>
+                  <TableHead>Payor/Payee</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {transactions.transactions.map((trans) => {
+                  return (
+                    <TransactionRowNew
+                      key={trans.id}
+                      trans={trans}
+                      handleModalOpen={handleModalOpen}
+                    />
+                  );
+                })}
+              </TableBody>
+            </Table>
             {transactions.totalPageCount > 1 && (
               <div className="mt-5 flex justify-center">
                 <Pagination
@@ -150,7 +232,12 @@ const AccountPage: NextPageWithLayout = () => {
               </div>
             )}
           </div>
-          <ConfirmDelete close={() => deleteTransaction()} trans={transToDel} ref={modalRef} />
+          <ConfirmDelete
+            close={() => deleteTransaction()}
+            trans={transToDel}
+            open={open}
+            setOpen={setOpen}
+          />
         </>
       )}
     </>

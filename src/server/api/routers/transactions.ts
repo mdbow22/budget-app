@@ -130,7 +130,7 @@ export const transactionsRouter = createTRPCRouter({
         },
       });
 
-      return { transactions: transactions.map(trans => ({ ...trans, amount: trans.amount.toNumber()})), accountOwner, totalPageCount: Math.ceil(totalPageCount / input.perPage), currentPage: input.cursor };
+      return { transactions: transactions.map(trans => ({ ...trans, amount: trans.amount.toNumber()})), accountOwner: {...accountOwner, currBalance: accountOwner.currBalance.toNumber()}, totalPageCount: Math.ceil(totalPageCount / input.perPage), currentPage: input.cursor };
     }),
   insertTransaction: protectedProcedure
     .input(
