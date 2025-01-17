@@ -28,6 +28,7 @@ import {
 } from "~/components/ui/table";
 import { formatCurrency } from "~/utils/functions";
 import { Skeleton } from "~/components/ui/skeleton";
+import Link from "next/link";
 
 const Dashboard: NextPageWithLayout = () => {
   const router = useRouter();
@@ -81,24 +82,66 @@ const Dashboard: NextPageWithLayout = () => {
       <Head>
         <title>Dashboard | {data?.user.name}</title>
       </Head>
+
       <h1 className="p-5 text-3xl font-bold text-accent">At a Glance</h1>
-      <h2 className="px-5 font-bold text-lg">Past 6 Months...</h2>
-      <div className="p-3">
-        {chart && (
-          <ul className="flex justify-center rounded-lg">
-            <li className="h-16 p-4 py-5 border-foreground/50 bg-muted border-r flex flex-col justify-center items-center rounded-l-lg">
-              <span className="font-bold">Income</span>
-              <span>{formatCurrency(totalIncome)}</span>
-            </li>
-            <li className="h-16 p-4 py-5 border-foreground/50 bg-muted border-r flex flex-col justify-center items-center">
-              <span className="font-bold">Expenses</span> {formatCurrency(totalExpenses)}
-            </li>
-            <li className="h-16 p-4 py-5 bg-muted flex flex-col justify-center items-center rounded-r-lg">
-              <span className="font-bold">Net</span> {formatCurrency(totalNet)}
-            </li>
-          </ul>
-        )}
+      <div className="mx-4 mb-4 md:w-[calc(50%-1rem)]">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted hover:bg-muted">
+              <TableHead>Account</TableHead>
+              <TableHead className="text-center">Balance</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {!accountLoading &&
+              accounts?.map((account) => {
+                return (
+                  <TableRow key={account.id}>
+                    <TableCell className="w-2/3 md:w-3/4">
+                      <Link href={`/accounts/${account.id}`}>
+                        {account.name}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {formatCurrency(account.currBalance)}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            <TableRow>
+              <TableCell className="w-2/3 font-bold md:w-3/4">Net</TableCell>
+              <TableCell className="text-center font-bold">
+                {accounts &&
+                  formatCurrency(
+                    accounts.reduce((a, b) => a + b.currBalance, 0)
+                  )}
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
       </div>
+      {/* <ul className="flex w-full justify-center rounded-lg pb-3">
+        {accounts?.map((account, i) => {
+          return (
+            <li
+              key={account.id}
+              className={`flex h-16 flex-col items-center justify-center border-r border-foreground/50 bg-muted p-4 py-5 ${
+                i === 0 && "rounded-l-lg"
+              }`}
+              
+            >
+              <span className="font-bold">{account.name}</span>
+              <span>{formatCurrency(account.currBalance)}</span>
+            </li>
+          );
+        })}
+        <li className="flex h-16 flex-col items-center justify-center bg-muted p-4 py-5 rounded-r-lg border-none">
+          <span className="font-bold">Net</span>
+          <span>{accounts && formatCurrency(accounts.reduce((a, b) => a + b.currBalance , 0))}</span>
+        </li>
+      </ul> */}
+      <h2 className="px-5 text-lg font-bold">Past 6 Months...</h2>
+
       <div className="flex w-full flex-col justify-between gap-5 px-5 md:flex-row">
         <div className="md:w-6/12">
           <div className="py-2">
@@ -115,7 +158,23 @@ const Dashboard: NextPageWithLayout = () => {
           </div>
         </div>
       </div>
-      
+      <div className="p-3">
+        {chart && (
+          <ul className="flex justify-center rounded-lg">
+            <li className="flex h-16 flex-col items-center justify-center rounded-l-lg border-r border-foreground/50 bg-muted p-4 py-5">
+              <span className="font-bold">Income</span>
+              <span>{formatCurrency(totalIncome)}</span>
+            </li>
+            <li className="flex h-16 flex-col items-center justify-center border-r border-foreground/50 bg-muted p-4 py-5">
+              <span className="font-bold">Expenses</span>{" "}
+              {formatCurrency(totalExpenses)}
+            </li>
+            <li className="flex h-16 flex-col items-center justify-center rounded-r-lg bg-muted p-4 py-5">
+              <span className="font-bold">Net</span> {formatCurrency(totalNet)}
+            </li>
+          </ul>
+        )}
+      </div>
       <div className="px-5 pb-5">
         <h2 className="pb-2 text-lg font-bold">Most Recent Transactions</h2>
         <Table>
