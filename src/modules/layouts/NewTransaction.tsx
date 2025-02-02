@@ -261,6 +261,7 @@ const NewTransaction: React.FC<TransModalProps> = ({ accounts }) => {
                     payload: { field: "account", value: e },
                   })
                 }
+                value={form.account}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select account..." />
