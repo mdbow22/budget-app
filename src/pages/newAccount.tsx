@@ -119,7 +119,6 @@ const NewAccount: NextPageWithLayout = () => {
               dispatch({ type: "startBal", payload: e.target.value })
             }
           />
-          <div>*</div>
         </li>
       </ul>
       <section className="mt-10">
