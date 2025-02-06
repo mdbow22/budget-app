@@ -121,7 +121,8 @@ export const generateTransactions = async (
         const digits = Math.floor((Math.random() * 3) + 1);
         const amount = Math.floor((Math.random() * (10 ** (digits + 2)))) / 100;
         const account = i < 13 ? accountsMade[0]?.id : accountsMade[1]?.id;
-        const category = categories.filter(c => c.type === 'credit')?.[Math.floor(Math.random() * categories.length)]?.id;
+        const filteredCats = categories.filter(c => c.type === 'credit');
+        const category = filteredCats?.[Math.floor(Math.random() * (filteredCats.length))]?.id
         if(account) {
             transactions.push({
                 amount,
@@ -139,7 +140,8 @@ export const generateTransactions = async (
         const digits = Math.floor((Math.random() * 3) + 1);
         const amount = (Math.floor((Math.random() * (10 ** (digits + 2)))) / 100) * -1;
         const account = i < 13 ? accountsMade[0]?.id : accountsMade[1]?.id;
-        const category = categories.filter(c => c.type === 'debit')?.[Math.floor(Math.random() * categories.length)]?.id;
+        const filteredCats = categories.filter(c => c.type === 'debit');
+        const category = filteredCats?.[Math.floor(Math.random() * (filteredCats.length))]?.id
         if(account) {
             transactions.push({
                 amount,
