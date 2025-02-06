@@ -29,6 +29,7 @@ import {
 import { formatCurrency } from "~/utils/functions";
 import { Skeleton } from "~/components/ui/skeleton";
 import Link from "next/link";
+import { Button } from "~/components/ui/button";
 
 const Dashboard: NextPageWithLayout = () => {
   const router = useRouter();
@@ -50,9 +51,7 @@ const Dashboard: NextPageWithLayout = () => {
     isSuccess,
   } = api.accounts.getAllAccounts.useQuery();
 
-  if (!accounts?.length && !accountLoading && isSuccess) {
-    return router.push("/newAccount");
-  }
+  
 
   const { data: recentTrans, isLoading } =
     api.transactions.getRecentTransactions.useQuery();
@@ -76,6 +75,15 @@ const Dashboard: NextPageWithLayout = () => {
       ) / 100
     : 0.0;
   const totalNet = Math.floor((totalIncome - totalExpenses) * 100) / 100;
+
+  if (!accounts?.length && !accountLoading && isSuccess) {
+    return <>
+      <h2 className="text-center text-xl font-bold mt-10">You have 0 Accounts Set Up</h2>
+      <div className="w-full flex justify-center">
+        <Link as="child" href="/newAccount"><Button className="mt-3 bg-accent">Create New Account</Button></Link>
+      </div>
+    </>
+  }
 
   return (
     <>
