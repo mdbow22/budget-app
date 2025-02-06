@@ -58,7 +58,7 @@ export default {
     themes: [
       {
         mytheme: {
-          primary: "#5F955F",
+          primary: "hsl(161 90% 36%)",
 
           secondary: "#A39171",
 

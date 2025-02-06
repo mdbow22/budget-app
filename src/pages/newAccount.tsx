@@ -4,6 +4,16 @@ import Layout from "~/modules/layouts/Layout";
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
+import { Label } from "~/components/ui/label";
+import { Input } from "~/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { Button } from "~/components/ui/button";
 
 export type AccountState = {
   name: string;
@@ -16,9 +26,9 @@ const NewAccount: NextPageWithLayout = () => {
   const router = useRouter();
   const demoData = api.accounts.createDemoData.useMutation({
     onSuccess: (): void => {
-      void router.push('/dashboard')
-    }
-  }) 
+      void router.push("/dashboard");
+    },
+  });
   const options = [
     {
       name: "Checking",
@@ -56,105 +66,75 @@ const NewAccount: NextPageWithLayout = () => {
 
   const [form, dispatch] = useReducer(reducer, initAccountState);
 
-
-
   return (
     <div className="p-5">
-      <h1 className="text-2xl font-bold">Let&apos;s make a new account!</h1>
-      <ul className="steps steps-vertical mt-10">
-        <li className={`step ${step >= 1 && "step-primary"} justify-start`}>
-          <div className="form-control">
-            <label className="label">
-              <h2 className="text-xl font-bold text-primary">
-                What do you want to call the account?
-              </h2>
-            </label>
-            <div className="flex w-full gap-3">
-              <input
-                type="text"
-                className="input input-bordered input-sm"
-                onChange={(e) =>
-                  dispatch({ type: "name", payload: e.target.value })
-                }
-                value={form.name}
-              />
-              <button
-                type="button"
-                className="btn btn-primary btn-sm border"
-                onClick={() => setStep(2)}
-                disabled={!form.name?.length || step !== 1}
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        </li>
-        <li
-          className={`step ${
-            step >= 2 ? "step-primary text-primary" : "text-base-300"
-          }`}
-        >
-          <div className="form-control">
-            <label className="label">
-              <h2 className="text-xl font-bold">What kind of account is it?</h2>
-            </label>
-            <div className="flex w-full gap-3">
-              <select
-                id="account-type"
-                className={`select select-bordered select-sm text-black`}
-                onChange={(e) =>
-                  dispatch({ type: "type", payload: e.target.value })
-                }
-                disabled={step !== 2}
-                value={form.type}
-              >
-                <option disabled value={"na"}>
-                  Select one...
-                </option>
+      <h1 className=" text-3xl font-bold text-accent">Create New Account</h1>
+      <ul className="mt-5 sm:w-full lg:w-1/2">
+        <li>
+          <Label>
+            <h2 className="text-xl font-bold">What kind of account is it?</h2>
+          </Label>
+          <div>
+            <Select
+              onValueChange={(e) => dispatch({ type: "type", payload: e })}
+              disabled={step !== 2}
+              value={form.type}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select one..." />
+              </SelectTrigger>
+              <SelectContent>
                 {options.map((option) => {
                   return (
-                    <option value={option.value} key={option.value}>
+                    <SelectItem value={option.value} key={option.value}>
                       {option.name}
-                    </option>
+                    </SelectItem>
                   );
                 })}
-              </select>
-              <button
-                type="button"
-                className="btn btn-primary btn-sm border"
-                onClick={() => setStep(3)}
-                disabled={step !== 2}
-              >
-                Next
-              </button>
-            </div>
+              </SelectContent>
+            </Select>
           </div>
         </li>
-        <li
-          className={`step ${
-            step >= 3 ? "step-primary text-primary" : "text-base-300"
-          }`}
-        >
-          <div className="form-control">
-            <label className="label">
-              <h2 className="text-xl font-bold">
-                What&apos;s the starting balance?
-              </h2>
-            </label>
-            <input
-            className="input input-bordered input-sm"
-              type="number"
-              value={form.startBal}
+        <li className='mt-3'>
+          <Label className="pb-2">
+            <h2 className="text-xl font-bold">Account Name <span className="font-normal text-sm">(20 character max)</span></h2>
+          </Label>
+          <div className="flex w-full gap-3">
+            <Input
+              type="text"
               onChange={(e) =>
-                dispatch({ type: "startBal", payload: e.target.value })
+                dispatch({ type: "name", payload: e.target.value })
               }
+              value={form.name}
+              maxLength={20}
             />
           </div>
         </li>
+        <li className='mt-3'>
+          <Label>
+            <h2 className="text-xl font-bold">Starting Balance</h2>
+          </Label>
+          <Input
+            type="number"
+            value={form.startBal}
+            onChange={(e) =>
+              dispatch({ type: "startBal", payload: e.target.value })
+            }
+          />
+          <div>*</div>
+        </li>
       </ul>
       <section className="mt-10">
-        <h3 className="text-lg font-bold">Just want to see how the app works?</h3>
-        <button className="btn btn-accent mt-3" onClick={() => session?.user?.id ? demoData.mutate({ id: session?.user.id }) : null}>Create Demo Data</button>
+        <h3 className="text-lg font-bold mb-2">
+          Just want to see how the app works?
+        </h3>
+        <Button className="bg-accent"
+          onClick={() =>
+            session?.user?.id ? demoData.mutate({ id: session?.user.id }) : null
+          }
+        >
+          Create Demo Data
+        </Button>
       </section>
     </div>
   );
