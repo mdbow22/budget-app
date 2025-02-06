@@ -50,9 +50,7 @@ const Dashboard: NextPageWithLayout = () => {
     isSuccess,
   } = api.accounts.getAllAccounts.useQuery();
 
-  if (!accounts?.length && !accountLoading && isSuccess) {
-    return router.push("/newAccount");
-  }
+  
 
   const { data: recentTrans, isLoading } =
     api.transactions.getRecentTransactions.useQuery();
@@ -76,6 +74,10 @@ const Dashboard: NextPageWithLayout = () => {
       ) / 100
     : 0.0;
   const totalNet = Math.floor((totalIncome - totalExpenses) * 100) / 100;
+
+  if (!accounts?.length && !accountLoading && isSuccess) {
+    router.push("/newAccount");
+  }
 
   return (
     <>

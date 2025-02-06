@@ -25,8 +25,8 @@ const NewAccount: NextPageWithLayout = () => {
   const { data: session } = useSession();
   const router = useRouter();
   const demoData = api.accounts.createDemoData.useMutation({
-    onSuccess: (): void => {
-      void router.push("/dashboard");
+    onSuccess: async () => {
+      await router.push("/dashboard");
     },
   });
   const options = [
@@ -43,7 +43,6 @@ const NewAccount: NextPageWithLayout = () => {
       value: "savings",
     },
   ];
-  const [step, setStep] = useState(1);
   const initAccountState = {
     name: "",
     type: "na",
@@ -77,7 +76,6 @@ const NewAccount: NextPageWithLayout = () => {
           <div>
             <Select
               onValueChange={(e) => dispatch({ type: "type", payload: e })}
-              disabled={step !== 2}
               value={form.type}
             >
               <SelectTrigger>
