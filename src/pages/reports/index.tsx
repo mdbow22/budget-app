@@ -14,7 +14,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "~/components/ui/chart";
-import { Bar, BarChart, CartesianGrid, Pie, PieChart, XAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Label, Pie, PieChart, XAxis } from "recharts";
 
 const Reports: NextPageWithLayout = () => {
   const { data: incomeExpenseHistory, isLoading: historyLoading } =
@@ -26,6 +26,8 @@ const Reports: NextPageWithLayout = () => {
     api.reports.monthlyCatSpendPieChart.useQuery(undefined, {
       refetchOnWindowFocus: false,
     });
+
+  const totalSpend = pieChartData?.reduce((a, b) => { return a + b.amount }, 0)
   // const [chartDate, setChartDate] = useState(
   //   DateTime.now().startOf("month").toISO() ??
   //     DateTime.now().startOf("month").toFormat("yyyy-MM-dd")
@@ -100,7 +102,8 @@ const Reports: NextPageWithLayout = () => {
       <Head>
         <title>Reports</title>
       </Head>
-      <div className="w-1/2 p-5">
+      <div className="flex mt-5">
+      <div className="w-1/2 p-5 border-r">
         <h2>Income vs Expense</h2>
         {!historyLoading && (
           <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
@@ -115,15 +118,50 @@ const Reports: NextPageWithLayout = () => {
           </ChartContainer>
         )}
       </div>
-      <div className="w-3/4 p-5">
+      <div className="w-1/2 p-5">
+        <h2>Monthly Spend by Category</h2>
         {!pieChartLoading && (
-          <ChartContainer config={pieChartConfig} className="min-h-[250px] w-full">
+          <ChartContainer config={pieChartConfig} className="min-h-[300px]">
             <PieChart>
               <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-              <Pie data={pieChartData} dataKey='amount' nameKey='category' innerRadius={100} />
+              {/* <ChartLegend content={<ChartLegendContent nameKey='category'
+                className="translate-x-1/2 flex-wrap gap-2 *:basis-1/4 *:justify-center w-1/2"
+              />} /> */}
+              <Pie data={pieChartData} dataKey='amount' nameKey='category' innerRadius={80}>
+              <Label
+                content={({ viewBox }) => {
+                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                    return (
+                      <text
+                        x={viewBox.cx}
+                        y={viewBox.cy}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                      >
+                        <tspan
+                          x={viewBox.cx}
+                          y={viewBox.cy}
+                          className="fill-foreground text-2xl font-bold"
+                        >
+                          {'$' + totalSpend?.toLocaleString()}
+                        </tspan>
+                        <tspan
+                          x={viewBox.cx}
+                          y={(viewBox.cy || 0) + 24}
+                          className="fill-muted-foreground"
+                        >
+                          Total Spent
+                        </tspan>
+                      </text>
+                    )
+                  }
+                }}
+              />
+              </Pie>
             </PieChart>
           </ChartContainer>
         )}
+      </div>
       </div>
     </>
   );

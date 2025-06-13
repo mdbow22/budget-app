@@ -78,16 +78,29 @@ export const monthlySpendPieChart = async (context: MonthlySpendPieChartType) =>
           : 0
       );
 
-      const chartData = sumWithCatName.map(cat => {
+      const colors = generateColors(sumWithCatName.length);
+
+      const chartData = sumWithCatName.map((cat, i) => {
 
         const randomNum = () => Math.floor(Math.random() * (235 - 52 + 1) + 52)
 
         return ({
             category: cat.name,
             amount: cat._sum.amount ? Math.abs(cat._sum.amount.toNumber()) : 0,
-            fill: `rgb(${randomNum()}, ${randomNum()}, ${randomNum()})`
+            fill: colors[i],
         })
       })
 
       return chartData;
+}
+
+const generateColors = (amount: number) => {
+  const colors: string[] = [];
+  const delta = Math.trunc(360 / amount);
+  for(let i = 0; i < amount; i++) {
+    const hue = i * delta;
+    colors.push(`hsla(${hue},80%,50%,1.0)`)
+  }
+
+  return colors;
 }
