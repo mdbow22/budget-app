@@ -78,19 +78,23 @@ const Reports: NextPageWithLayout = () => {
         <div className="w-full py-5">
           <div className="flex items-end gap-4">
             <h2 className="w-full">Income vs Expense</h2>
-            <Select onValueChange={(e) => setBarChartMonths(parseInt(e))}>
-              <SelectTrigger>{barChartMonths + 1} month history</SelectTrigger>
-              <SelectContent>
-                <SelectItem value="2">3 month history</SelectItem>
-                <SelectItem value="5">6 month history</SelectItem>
-                <SelectItem value="11">12 month history</SelectItem>
-              </SelectContent>
-            </Select>
+            <div>
+              <Select onValueChange={(e) => setBarChartMonths(parseInt(e))}>
+                <SelectTrigger>
+                  {barChartMonths + 1} month history
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="2">3 month history</SelectItem>
+                  <SelectItem value="5">6 month history</SelectItem>
+                  <SelectItem value="11">12 month history</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           {!historyLoading && (
             <ChartContainer
               config={chartConfig}
-              className="min-h-[200px] w-full max-h-[500px]"
+              className="max-h-[500px] min-h-[200px] w-full"
             >
               <BarChart data={barChartData ?? undefined}>
                 <CartesianGrid vertical={false} />
