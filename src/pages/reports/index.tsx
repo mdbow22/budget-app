@@ -30,6 +30,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from "~/components/ui/select";
+import { formatCurrency } from "~/utils/functions";
 
 const Reports: NextPageWithLayout = () => {
   const [barChartMonths, setBarChartMonths] = useState(5);
@@ -41,18 +42,20 @@ const Reports: NextPageWithLayout = () => {
       }
     );
 
-  const { data: pieChartData, isLoading: pieChartLoading } =
-    api.reports.monthlyCatSpendPieChart.useQuery(undefined, {
-      refetchOnWindowFocus: false,
-    });
-
-  const totalSpend = pieChartData?.reduce((a, b) => {
-    return a + b.amount;
-  }, 0);
   const barChartData = incomeExpenseHistory?.map((dat) => ({
     ...dat,
     month: dat.month.slice(0, 3),
   }));
+
+  const totals = incomeExpenseHistory?.reduce(
+    (a, b) => {
+      return {
+        income: a.income + b.income,
+        expense: a.expense + b.expense,
+      };
+    },
+    { income: 0, expense: 0 }
+  );
 
   const chartConfig = {
     income: {
@@ -65,10 +68,6 @@ const Reports: NextPageWithLayout = () => {
     },
   } satisfies ChartConfig;
 
-  const pieChartConfig = pieChartData?.reduce((a, b) => {
-    return { ...a, [b.category]: { label: b.category, color: b.fill } };
-  }, {} as any);
-
   return (
     <>
       <Head>
@@ -76,8 +75,8 @@ const Reports: NextPageWithLayout = () => {
       </Head>
       <div className="mt-5">
         <div className="w-full py-5">
-          <div className="flex items-end gap-4">
-            <h2 className="w-full">Income vs Expense</h2>
+          <div className="mb-4 flex items-end gap-4">
+            <h2 className="w-full text-2xl font-bold">Income vs Expense</h2>
             <div>
               <Select onValueChange={(e) => setBarChartMonths(parseInt(e))}>
                 <SelectTrigger>
@@ -108,57 +107,40 @@ const Reports: NextPageWithLayout = () => {
             </ChartContainer>
           )}
         </div>
-        <div className="w-1/2 p-5">
-          <h2>Monthly Spend by Category</h2>
-          {!pieChartLoading && (
-            <ChartContainer config={pieChartConfig} className="min-h-[300px]">
-              <PieChart>
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent />}
-                />
-                {/* <ChartLegend content={<ChartLegendContent nameKey='category'
-                className="translate-x-1/2 flex-wrap gap-2 *:basis-1/4 *:justify-center w-1/2"
-              />} /> */}
-                <Pie
-                  data={pieChartData}
-                  dataKey="amount"
-                  nameKey="category"
-                  innerRadius={80}
-                >
-                  <Label
-                    content={({ viewBox }) => {
-                      if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                        return (
-                          <text
-                            x={viewBox.cx}
-                            y={viewBox.cy}
-                            textAnchor="middle"
-                            dominantBaseline="middle"
-                          >
-                            <tspan
-                              x={viewBox.cx}
-                              y={viewBox.cy}
-                              className="fill-foreground text-2xl font-bold"
-                            >
-                              {"$" + totalSpend?.toLocaleString()}
-                            </tspan>
-                            <tspan
-                              x={viewBox.cx}
-                              y={(viewBox.cy || 0) + 24}
-                              className="fill-muted-foreground"
-                            >
-                              Total Spent
-                            </tspan>
-                          </text>
-                        );
-                      }
-                    }}
-                  />
-                </Pie>
-              </PieChart>
-            </ChartContainer>
+        <div>
+          {totals && (
+            <ul className="flex justify-center rounded-lg">
+              <li className="flex h-16 flex-col items-center justify-center rounded-l-lg border-r border-foreground/50 bg-muted p-4 py-5">
+                <span className="font-bold">Income</span>
+                <span>{formatCurrency(totals.income)}</span>
+              </li>
+              <li className="flex h-16 flex-col items-center justify-center border-r border-foreground/50 bg-muted p-4 py-5">
+                <span className="font-bold">Expenses</span>{" "}
+                {formatCurrency(totals.expense)}
+              </li>
+              <li className="flex h-16 flex-col items-center justify-center rounded-r-lg bg-muted p-4 py-5">
+                <span className="font-bold">Net</span>{" "}
+                {formatCurrency(totals.income - totals.expense)}
+              </li>
+            </ul>
           )}
+        </div>
+        <div className="w-full py-5">
+          <div className="mb-4 flex items-end gap-4">
+            <h2 className="w-full text-2xl font-bold">Change in Net Worth</h2>
+            <div>
+              <Select onValueChange={(e) => setBarChartMonths(parseInt(e))}>
+                <SelectTrigger>
+                  {barChartMonths + 1} month history
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="2">3 month history</SelectItem>
+                  <SelectItem value="5">6 month history</SelectItem>
+                  <SelectItem value="11">12 month history</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
       </div>
     </>

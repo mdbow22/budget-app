@@ -56,7 +56,7 @@ export const chartsRouter = createTRPCRouter({
         currMonth.month < 6 && currMonth.month - i <= 0
           ? 11 + (currMonth.month - i)
           : currMonth.month - 1 - i;
-      labels[i] = Info.months("short")[monthNumber] + " 1st" ?? "";
+      labels[i] = Info.months("short")[monthNumber] + " 1st";
 
       const sumOfTrans = await ctx.prisma.transaction.aggregate({
         _sum: {
