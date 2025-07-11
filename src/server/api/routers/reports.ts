@@ -87,6 +87,6 @@ export const reportsRouter = createTRPCRouter({
 
       return chartData;
     }),
-    incomeExpenseBarChart: protectedProcedure.query(incomeExpenseBarChart),
+    incomeExpenseBarChart: protectedProcedure.input(z.object({ months: z.number().optional() }).optional()).query(incomeExpenseBarChart),
     monthlyCatSpendPieChart: protectedProcedure.input(z.object({ month: z.string().optional() }).optional()).query(monthlySpendPieChart)
 });

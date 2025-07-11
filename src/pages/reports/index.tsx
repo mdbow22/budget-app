@@ -14,73 +14,45 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "~/components/ui/chart";
-import { Bar, BarChart, CartesianGrid, Label, Pie, PieChart, XAxis } from "recharts";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Label,
+  Pie,
+  PieChart,
+  XAxis,
+  YAxis,
+} from "recharts";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "~/components/ui/select";
 
 const Reports: NextPageWithLayout = () => {
+  const [barChartMonths, setBarChartMonths] = useState(5);
   const { data: incomeExpenseHistory, isLoading: historyLoading } =
-    api.reports.incomeExpenseBarChart.useQuery(undefined, {
-      refetchOnWindowFocus: false,
-    });
+    api.reports.incomeExpenseBarChart.useQuery(
+      { months: barChartMonths },
+      {
+        refetchOnWindowFocus: false,
+      }
+    );
 
   const { data: pieChartData, isLoading: pieChartLoading } =
     api.reports.monthlyCatSpendPieChart.useQuery(undefined, {
       refetchOnWindowFocus: false,
     });
 
-  const totalSpend = pieChartData?.reduce((a, b) => { return a + b.amount }, 0)
-  // const [chartDate, setChartDate] = useState(
-  //   DateTime.now().startOf("month").toISO() ??
-  //     DateTime.now().startOf("month").toFormat("yyyy-MM-dd")
-  // );
-  // const dateOptions = useMemo(() => {
-  //   const dates: { label: string; value: string | null }[] = [];
-  //   for (let i = 0; i < 6; i++) {
-  //     const dateTime = DateTime.now().minus({ months: i }).startOf("month");
-  //     dates.push({
-  //       label: dateTime.toFormat("MM/dd/yyyy"),
-  //       value: dateTime.toISO(),
-  //     });
-  //   }
-  //   return dates;
-  // }, []);
-  // ChartJS.register(ArcElement, Title, Tooltip, Legend);
-
-  // const { data: sumOfSpend, isLoading: spendLoading } =
-  //   api.reports.aggregateAccountSpend.useQuery(
-  //     { pastMonths: chartDate },
-  //     {
-  //       refetchOnWindowFocus: false,
-  //     }
-  //   );
-
-  // const calcAverage = (amounts: number[] | undefined) => {
-  //   if (!amounts) {
-  //     return;
-  //   }
-
-  //   return (
-  //     Math.round((amounts.reduce((a, b) => a + b, 0) / amounts.length) * 100) /
-  //     100
-  //   );
-  // };
-
-  const chartData = [
-    {
-      month: "January",
-      income: 14000,
-      expense: 8567,
-    },
-    {
-      month: "February",
-      income: 13256,
-      expense: 4366,
-    },
-    {
-      month: "March",
-      income: 15000,
-      expense: 5799,
-    },
-  ];
+  const totalSpend = pieChartData?.reduce((a, b) => {
+    return a + b.amount;
+  }, 0);
+  const barChartData = incomeExpenseHistory?.map((dat) => ({
+    ...dat,
+    month: dat.month.slice(0, 3),
+  }));
 
   const chartConfig = {
     income: {
@@ -94,74 +66,96 @@ const Reports: NextPageWithLayout = () => {
   } satisfies ChartConfig;
 
   const pieChartConfig = pieChartData?.reduce((a, b) => {
-    return ({ ...a, [b.category]: { label: b.category, color: b.fill } })
-   }, {} as any);
+    return { ...a, [b.category]: { label: b.category, color: b.fill } };
+  }, {} as any);
 
   return (
     <>
       <Head>
         <title>Reports</title>
       </Head>
-      <div className="flex mt-5">
-      <div className="w-1/2 p-5 border-r">
-        <h2>Income vs Expense</h2>
-        {!historyLoading && (
-          <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-            <BarChart data={incomeExpenseHistory ?? undefined}>
-              <CartesianGrid vertical={false} />
-              <XAxis dataKey="month" tickLine={false} tickMargin={5} />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <ChartLegend content={<ChartLegendContent />} />
-              <Bar dataKey="income" fill="var(--color-income)" radius={4} />
-              <Bar dataKey="expense" fill="var(--color-expense)" radius={4} />
-            </BarChart>
-          </ChartContainer>
-        )}
-      </div>
-      <div className="w-1/2 p-5">
-        <h2>Monthly Spend by Category</h2>
-        {!pieChartLoading && (
-          <ChartContainer config={pieChartConfig} className="min-h-[300px]">
-            <PieChart>
-              <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-              {/* <ChartLegend content={<ChartLegendContent nameKey='category'
+      <div className="mt-5">
+        <div className="w-full py-5">
+          <div className="flex items-end gap-4">
+            <h2 className="w-full">Income vs Expense</h2>
+            <Select onValueChange={(e) => setBarChartMonths(parseInt(e))}>
+              <SelectTrigger>{barChartMonths + 1} month history</SelectTrigger>
+              <SelectContent>
+                <SelectItem value="2">3 month history</SelectItem>
+                <SelectItem value="5">6 month history</SelectItem>
+                <SelectItem value="11">12 month history</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {!historyLoading && (
+            <ChartContainer
+              config={chartConfig}
+              className="min-h-[200px] w-full max-h-[500px]"
+            >
+              <BarChart data={barChartData ?? undefined}>
+                <CartesianGrid vertical={false} />
+                <XAxis dataKey="month" tickLine={false} tickMargin={5} />
+                <YAxis axisLine={false} tickLine={false} tickCount={8} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <ChartLegend content={<ChartLegendContent />} />
+                <Bar dataKey="income" fill="var(--color-income)" radius={4} />
+                <Bar dataKey="expense" fill="var(--color-expense)" radius={4} />
+              </BarChart>
+            </ChartContainer>
+          )}
+        </div>
+        <div className="w-1/2 p-5">
+          <h2>Monthly Spend by Category</h2>
+          {!pieChartLoading && (
+            <ChartContainer config={pieChartConfig} className="min-h-[300px]">
+              <PieChart>
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent />}
+                />
+                {/* <ChartLegend content={<ChartLegendContent nameKey='category'
                 className="translate-x-1/2 flex-wrap gap-2 *:basis-1/4 *:justify-center w-1/2"
               />} /> */}
-              <Pie data={pieChartData} dataKey='amount' nameKey='category' innerRadius={80}>
-              <Label
-                content={({ viewBox }) => {
-                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                    return (
-                      <text
-                        x={viewBox.cx}
-                        y={viewBox.cy}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                      >
-                        <tspan
-                          x={viewBox.cx}
-                          y={viewBox.cy}
-                          className="fill-foreground text-2xl font-bold"
-                        >
-                          {'$' + totalSpend?.toLocaleString()}
-                        </tspan>
-                        <tspan
-                          x={viewBox.cx}
-                          y={(viewBox.cy || 0) + 24}
-                          className="fill-muted-foreground"
-                        >
-                          Total Spent
-                        </tspan>
-                      </text>
-                    )
-                  }
-                }}
-              />
-              </Pie>
-            </PieChart>
-          </ChartContainer>
-        )}
-      </div>
+                <Pie
+                  data={pieChartData}
+                  dataKey="amount"
+                  nameKey="category"
+                  innerRadius={80}
+                >
+                  <Label
+                    content={({ viewBox }) => {
+                      if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                        return (
+                          <text
+                            x={viewBox.cx}
+                            y={viewBox.cy}
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                          >
+                            <tspan
+                              x={viewBox.cx}
+                              y={viewBox.cy}
+                              className="fill-foreground text-2xl font-bold"
+                            >
+                              {"$" + totalSpend?.toLocaleString()}
+                            </tspan>
+                            <tspan
+                              x={viewBox.cx}
+                              y={(viewBox.cy || 0) + 24}
+                              className="fill-muted-foreground"
+                            >
+                              Total Spent
+                            </tspan>
+                          </text>
+                        );
+                      }
+                    }}
+                  />
+                </Pie>
+              </PieChart>
+            </ChartContainer>
+          )}
+        </div>
       </div>
     </>
   );

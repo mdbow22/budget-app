@@ -15,13 +15,21 @@ export interface Context {
         expires: ISODateString;
       };
       prisma: PrismaClient;
-}}
+},
+  }
 
-export const incomeExpenseBarChart = async (context: Context) => {
+interface IncomeExpenseBarChartContext extends Context {
+  input?: {
+        months?: number;
+    }
+}
+
+export const incomeExpenseBarChart = async (context: IncomeExpenseBarChartContext) => {
     const ctx = context.ctx;
+    const input = context.input;
   const userId = ctx.session.user.id;
 
-  const sixMonthsTrans = await ctx.prisma.transaction.findMany({
+  const pastTransactions = await ctx.prisma.transaction.findMany({
     where: {
       BankAccount: {
         userId,
@@ -38,7 +46,7 @@ export const incomeExpenseBarChart = async (context: Context) => {
         {
           date: {
             gte: DateTime.now()
-              .minus({ months: 5 })
+              .minus({ months: input && input.months ? input.months : 5 })
               .startOf("month")
               .toJSDate(),
           },
@@ -48,8 +56,8 @@ export const incomeExpenseBarChart = async (context: Context) => {
     orderBy: [{ date: "asc" }],
   });
 
-  if(sixMonthsTrans) {
-    const chartData = sixMonthsTrans.reduce((a, b) => {
+  if(pastTransactions) {
+    const chartData = pastTransactions.reduce((a, b) => {
         const month = DateTime.fromJSDate(b.date).monthLong ?? 'Undefined';
         const amount = b.amount.toNumber();
         const indexOfMonth = a.findIndex(val => val.month === month);
