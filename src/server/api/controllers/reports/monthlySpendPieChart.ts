@@ -102,5 +102,15 @@ const generateColors = (amount: number) => {
     colors.push(`hsla(${hue},80%,50%,1.0)`)
   }
 
+  //shuffle array
+  for(let i = colors.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = colors[i];
+    if(colors[j]) {
+      colors[i] = colors[j];
+      colors[j] = temp as string;
+    }
+  }
+
   return colors;
 }
