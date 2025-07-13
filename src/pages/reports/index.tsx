@@ -19,6 +19,8 @@ import {
   BarChart,
   CartesianGrid,
   Label,
+  Line,
+  LineChart,
   Pie,
   PieChart,
   XAxis,
@@ -31,9 +33,11 @@ import {
   SelectTrigger,
 } from "~/components/ui/select";
 import { formatCurrency } from "~/utils/functions";
+import { netWorthCangeLineChart } from "~/server/api/controllers/reports/netWorthChangeLineChart";
 
 const Reports: NextPageWithLayout = () => {
   const [barChartMonths, setBarChartMonths] = useState(5);
+  const [lineChartMonths, setLineChartMonths] = useState(6);
   const { data: incomeExpenseHistory, isLoading: historyLoading } =
     api.reports.incomeExpenseBarChart.useQuery(
       { months: barChartMonths },
@@ -65,6 +69,19 @@ const Reports: NextPageWithLayout = () => {
     expense: {
       label: "Expenses",
       color: "hsl(var(--destructive))",
+    },
+  } satisfies ChartConfig;
+
+  const { data: netWrothLineChartData, isLoading: netWorthLoading } =
+    api.reports.netWorthChangeLineChart.useQuery(
+      { months: lineChartMonths },
+      { refetchOnWindowFocus: false }
+    );
+
+  const lineChartConfig = {
+    balance: {
+      label: "Balance",
+      color: "hsl(var(--accent))",
     },
   } satisfies ChartConfig;
 
@@ -141,6 +158,28 @@ const Reports: NextPageWithLayout = () => {
               </Select>
             </div>
           </div>
+        </div>
+        <div className="w-full py-5">
+          <ChartContainer config={lineChartConfig}
+            className="max-h-[500px] min-h-[200px] w-full"
+          >
+            <LineChart data={netWrothLineChartData ?? undefined}>
+              <CartesianGrid vertical={false} />
+              <XAxis dataKey="month" tickLine={false} tickMargin={4} />
+              <YAxis axisLine={false} tickCount={8} />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent hideLabel />}
+              />
+              <Line
+                dataKey="balance"
+                dot={{
+                  fill: "var(--color-balance)",
+                }}
+                type="natural"
+              />
+            </LineChart>
+          </ChartContainer>
         </div>
       </div>
     </>
