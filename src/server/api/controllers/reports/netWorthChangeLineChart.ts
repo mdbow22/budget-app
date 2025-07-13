@@ -14,7 +14,7 @@ export const netWorthCangeLineChart = async (
 ) => {
   const { ctx, input } = context;
   const userId = ctx.session.user.id;
-
+console.log(input);
   const allAccounts = await ctx.prisma.bankAccount.findMany({
     where: {
       userId,
@@ -35,10 +35,9 @@ export const netWorthCangeLineChart = async (
   const returnInfo: { month: string; balance: number }[] = [];
   for (let i = 0; i < totalMonths; i++) {
     const monthNumber =
-      currMonth.month < 6 && currMonth.month - i <= 0
+       currMonth.month - i <= 0
         ? 11 + (currMonth.month - i)
         : currMonth.month - 1 - i;
-
     const sumOfTrans = await ctx.prisma.transaction.aggregate({
       _sum: {
         amount: true,
@@ -68,7 +67,7 @@ export const netWorthCangeLineChart = async (
     });
 
     returnInfo[i] = {
-      month: Info.months("short")[monthNumber] + "1st",
+      month: Info.months("short")[monthNumber] + " 1st",
       balance: sumOfTrans._sum.amount
         ? totalCurrBal - sumOfTrans._sum?.amount?.toNumber()
         : totalCurrBal - 0,

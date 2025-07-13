@@ -146,14 +146,14 @@ const Reports: NextPageWithLayout = () => {
           <div className="mb-4 flex items-end gap-4">
             <h2 className="w-full text-2xl font-bold">Change in Net Worth</h2>
             <div>
-              <Select onValueChange={(e) => setBarChartMonths(parseInt(e))}>
+              <Select onValueChange={(e) => setLineChartMonths(parseInt(e))}>
                 <SelectTrigger>
-                  {barChartMonths + 1} month history
+                  {lineChartMonths} month history
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="2">3 month history</SelectItem>
-                  <SelectItem value="5">6 month history</SelectItem>
-                  <SelectItem value="11">12 month history</SelectItem>
+                  <SelectItem value="3">3 month history</SelectItem>
+                  <SelectItem value="6">6 month history</SelectItem>
+                  <SelectItem value="12">12 month history</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -173,6 +173,7 @@ const Reports: NextPageWithLayout = () => {
               />
               <Line
                 dataKey="balance"
+                color="var(--color-balance)"
                 dot={{
                   fill: "var(--color-balance)",
                 }}
