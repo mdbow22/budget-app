@@ -14,7 +14,7 @@ const config = {
     // These opinionated rules are enabled in stylistic-type-checked above.
     // Feel free to reconfigure them to your own preference.
     "@typescript-eslint/prefer-nullish-coalescing": [
-      "error",
+      "off",
       {
         ignoreConditionalTests: true,
       },
@@ -31,6 +31,11 @@ const config = {
     ],
     "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
     "@typescript-eslint/no-unsafe-assignment": ["warn"],
+    "@typescript-eslint/consistent-indexed-object-style": "off",
+    "@typescript-eslint/no-unnecessary-type-assertion": "warn",
+    "@typescript-eslint/no-unsafe-member-access": "warn",
+    "@typescript-eslint/restrict-template-expressions": "warn",
+    "@typescript-eslint/no-unsafe-argument": "warn",
   },
 };
 

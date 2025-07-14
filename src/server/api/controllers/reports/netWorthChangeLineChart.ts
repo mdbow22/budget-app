@@ -1,7 +1,5 @@
-import { PrismaClient } from "@prisma/client";
 import { DateTime, Info } from "luxon";
-import { ISODateString } from "next-auth";
-import { Context } from "./incomeExpenseBarChart";
+import type { Context } from "./incomeExpenseBarChart";
 
 interface NetWorthChangeLineChartContext extends Context {
   input?: {

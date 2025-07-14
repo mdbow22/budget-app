@@ -6,19 +6,6 @@ import { useSession } from "next-auth/react";
 import { api } from "~/utils/api";
 import { DateTime } from "luxon";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  PointElement,
-  LineElement,
-} from "chart.js";
-import { Bar, Line } from "react-chartjs-2";
-import { useRouter } from "next/router";
-import {
   Table,
   TableBody,
   TableCell,
@@ -33,19 +20,9 @@ import { Button } from "~/components/ui/button";
 import CategorySpendPieChart from "~/modules/dashboard/CategorySpendPieChart";
 
 const Dashboard: NextPageWithLayout = () => {
-  const router = useRouter();
   const { data } = useSession();
 
-  ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend
-  );
+  
   const {
     data: accounts,
     isLoading: accountLoading,
@@ -58,12 +35,6 @@ const Dashboard: NextPageWithLayout = () => {
     api.transactions.getRecentTransactions.useQuery();
 
   const { data: chart } = api.charts.getDashboardChartData.useQuery();
-
-  const { data: lineChart, isLoading: lineChartLoading } =
-    api.charts.getDashboardLineChartData.useQuery();
-
-  const { data: sumOfSpend, isLoading: spendLoading } =
-    api.charts.getDashboardChartData.useQuery({});
 
   const totalIncome = chart?.datasets[0]?.data.length
     ? Math.floor(
@@ -129,24 +100,8 @@ const Dashboard: NextPageWithLayout = () => {
           </TableBody>
         </Table>
       </div>
-      {/* <h2 className="px-5 text-lg font-bold">Past 6 Months...</h2> */}
-
       <div className=" w-full  px-5 md:flex-row">
         <CategorySpendPieChart />
-        {/* <div className="md:w-6/12">
-          <div className="py-2">
-            <h2 className="pb-2 font-bold">Income vs Expenses</h2>
-            {!spendLoading && sumOfSpend && <Bar data={sumOfSpend} />}
-            {spendLoading && <Skeleton className="h-32 lg:h-60" />}
-          </div>
-        </div>
-        <div className="md:w-6/12">
-          <div className="py-2">
-            <h2 className="pb-2 font-bold">Change in Net Worth</h2>
-            {!!lineChart && !lineChartLoading && <Line data={lineChart} />}
-            {lineChartLoading && <Skeleton className="h-32 lg:h-60" />}
-          </div>
-        </div> */}
       </div>
       <div className="p-3">
         {chart && (

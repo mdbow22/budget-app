@@ -1,11 +1,8 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import type { NextPageWithLayout } from "../_app";
 import Layout from "~/modules/layouts/Layout";
 import Head from "next/head";
 import { api } from "~/utils/api";
-import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement } from "chart.js";
-//import { Pie } from "react-chartjs-2";
-import { DateTime } from "luxon";
 import {
   ChartConfig,
   ChartContainer,
@@ -18,11 +15,8 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Label,
   Line,
   LineChart,
-  Pie,
-  PieChart,
   XAxis,
   YAxis,
 } from "recharts";
@@ -33,7 +27,6 @@ import {
   SelectTrigger,
 } from "~/components/ui/select";
 import { formatCurrency } from "~/utils/functions";
-import { netWorthCangeLineChart } from "~/server/api/controllers/reports/netWorthChangeLineChart";
 
 const Reports: NextPageWithLayout = () => {
   const [barChartMonths, setBarChartMonths] = useState(5);

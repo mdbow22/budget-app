@@ -30,7 +30,7 @@ const CategorySpendPieChart: React.FC = () => {
 
   const pieChartConfig = pieChartData?.reduce((a, b) => {
     return { ...a, [b.category]: { label: b.category, color: b.fill } };
-  }, {} as any);
+  }, {} as { [x: string]: { label: string, color: string | undefined }});
 
   const handleShowHideCategory = (category: string) => {
     if (categoriesIgnored.includes(category)) {
@@ -48,7 +48,7 @@ const CategorySpendPieChart: React.FC = () => {
         <div className="flex w-full flex-col justify-between gap-2 md:flex-row">
           <div className="w-full">
             <ChartContainer
-              config={pieChartConfig}
+              config={pieChartConfig ?? {}}
               className="min-h-[300px] w-full"
             >
               <PieChart>
@@ -83,7 +83,7 @@ const CategorySpendPieChart: React.FC = () => {
                             </tspan>
                             <tspan
                               x={viewBox.cx}
-                              y={(viewBox.cy || 0) + 24}
+                              y={(viewBox.cy ?? 0) + 24}
                               className="fill-muted-foreground"
                             >
                               Total Spent

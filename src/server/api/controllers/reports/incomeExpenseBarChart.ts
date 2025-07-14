@@ -1,6 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import type { PrismaClient } from "@prisma/client";
 import { DateTime } from "luxon";
-import { ISODateString } from "next-auth";
+import type { ISODateString } from "next-auth";
 
 export interface Context {
   ctx: {
@@ -48,7 +48,7 @@ export const incomeExpenseBarChart = async (
         {
           date: {
             gte: DateTime.now()
-              .minus({ months: input && input.months ? input.months : 5 })
+              .minus({ months: input?.months ? input.months : 5 })
               .startOf("month")
               .toJSDate(),
           },

@@ -108,7 +108,7 @@ const generateColors = (amount: number) => {
     const temp = colors[i];
     if(colors[j]) {
       colors[i] = colors[j];
-      colors[j] = temp as string;
+      colors[j] = temp!;
     }
   }
 
