@@ -158,7 +158,7 @@ const Reports: NextPageWithLayout = () => {
           >
             <LineChart data={netWrothLineChartData ?? undefined}>
               <CartesianGrid vertical={false} />
-              <XAxis dataKey="month" tickLine={false} tickMargin={4} />
+              <XAxis dataKey="month" tickLine={false} />
               <YAxis axisLine={false} tickCount={8} />
               <ChartTooltip
                 cursor={false}
