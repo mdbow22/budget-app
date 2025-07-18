@@ -1,98 +1,179 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import type { NextPageWithLayout } from "../_app";
 import Layout from "~/modules/layouts/Layout";
 import Head from "next/head";
 import { api } from "~/utils/api";
-import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement } from "chart.js";
-import { Pie } from "react-chartjs-2";
-import { DateTime } from "luxon";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "~/components/ui/chart";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Line,
+  LineChart,
+  XAxis,
+  YAxis,
+} from "recharts";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "~/components/ui/select";
+import { formatCurrency } from "~/utils/functions";
 
 const Reports: NextPageWithLayout = () => {
-  const [chartDate, setChartDate] = useState(
-    DateTime.now().startOf("month").toISO() ??
-      DateTime.now().startOf("month").toFormat("yyyy-MM-dd")
-  );
-  const dateOptions = useMemo(() => {
-    const dates: { label: string; value: string | null }[] = [];
-    for (let i = 0; i < 6; i++) {
-      const dateTime = DateTime.now().minus({ months: i }).startOf("month");
-      dates.push({
-        label: dateTime.toFormat("MM/dd/yyyy"),
-        value: dateTime.toISO(),
-      });
-    }
-    return dates;
-  }, []);
-  ChartJS.register(ArcElement, Title, Tooltip, Legend);
-
-  const { data: sumOfSpend, isLoading: spendLoading } =
-    api.reports.aggregateAccountSpend.useQuery(
-      { pastMonths: chartDate },
+  const [barChartMonths, setBarChartMonths] = useState(5);
+  const [lineChartMonths, setLineChartMonths] = useState(6);
+  const { data: incomeExpenseHistory, isLoading: historyLoading } =
+    api.reports.incomeExpenseBarChart.useQuery(
+      { months: barChartMonths },
       {
         refetchOnWindowFocus: false,
       }
     );
 
-  const calcAverage = (amounts: number[] | undefined) => {
-    if (!amounts) {
-      return;
-    }
+  const barChartData = incomeExpenseHistory?.map((dat) => ({
+    ...dat,
+    month: dat.month.slice(0, 3),
+  }));
 
-    return (
-      Math.round((amounts.reduce((a, b) => a + b, 0) / amounts.length) * 100) /
-      100
+  const totals = incomeExpenseHistory?.reduce(
+    (a, b) => {
+      return {
+        income: a.income + b.income,
+        expense: a.expense + b.expense,
+      };
+    },
+    { income: 0, expense: 0 }
+  );
+
+  const chartConfig = {
+    income: {
+      label: "Income",
+      color: "hsl(var(--accent))",
+    },
+    expense: {
+      label: "Expenses",
+      color: "hsl(var(--destructive))",
+    },
+  } satisfies ChartConfig;
+
+  const { data: netWrothLineChartData, isLoading: netWorthLoading } =
+    api.reports.netWorthChangeLineChart.useQuery(
+      { months: lineChartMonths },
+      { refetchOnWindowFocus: false }
     );
-  };
+
+  const lineChartConfig = {
+    balance: {
+      label: "Balance",
+      color: "hsl(var(--accent))",
+    },
+  } satisfies ChartConfig;
 
   return (
     <>
       <Head>
         <title>Reports</title>
       </Head>
-      <div className="w-full p-5">
-        <div className="flex gap-10">
-          <h1 className="pb-5 text-2xl font-bold">Monthly Spend by Category</h1>
-          <select className={`select select-bordered select-sm`} onChange={(e) => setChartDate(e.target.value)}>
-            {dateOptions.map((d) => {
-              return (
-                <option value={d.value ?? undefined} key={d.value}>
-                  {d.label}
-                </option>
-              );
-            })}
-          </select>
-        </div>
-        <div className="flex gap-10">
-          <div className="w-full lg:max-w-md">
-            {!spendLoading && sumOfSpend && (
-              <Pie data={sumOfSpend} className="h-full w-full" />
-            )}
+      <div className="mt-5">
+        <div className="w-full py-5">
+          <div className="mb-4 flex items-end gap-4">
+            <h2 className="w-full text-2xl font-bold">Income vs Expense</h2>
+            <div>
+              <Select onValueChange={(e) => setBarChartMonths(parseInt(e))}>
+                <SelectTrigger>
+                  {barChartMonths + 1} month history
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="2">3 month history</SelectItem>
+                  <SelectItem value="5">6 month history</SelectItem>
+                  <SelectItem value="11">12 month history</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div className="w-full">
-            <h2 className="text-xl font-bold">Summary:</h2>
-            <ul>
-              <li>
-                Total Spend: $
-                {!!sumOfSpend?.datasets[0]?.data &&
-                  Math.floor(
-                    sumOfSpend?.datasets[0]?.data.reduce((a, b) => a + b, 0) *
-                      100
-                  ) / 100}
+          {!historyLoading && (
+            <ChartContainer
+              config={chartConfig}
+              className="max-h-[500px] min-h-[200px] w-full"
+            >
+              <BarChart data={barChartData ?? undefined}>
+                <CartesianGrid vertical={false} />
+                <XAxis dataKey="month" tickLine={false} tickMargin={5} />
+                <YAxis axisLine={false} tickLine={false} tickCount={8} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <ChartLegend content={<ChartLegendContent />} />
+                <Bar dataKey="income" fill="var(--color-income)" radius={4} />
+                <Bar dataKey="expense" fill="var(--color-expense)" radius={4} />
+              </BarChart>
+            </ChartContainer>
+          )}
+        </div>
+        <div>
+          {totals && (
+            <ul className="flex justify-center rounded-lg">
+              <li className="flex h-16 flex-col items-center justify-center rounded-l-lg border-r border-foreground/50 bg-muted p-4 py-5">
+                <span className="font-bold">Income</span>
+                <span>{formatCurrency(totals.income)}</span>
               </li>
-              <li>
-                Largest Category: {sumOfSpend?.labels[0]} ($
-                {sumOfSpend?.datasets[0]?.data[0]})
+              <li className="flex h-16 flex-col items-center justify-center border-r border-foreground/50 bg-muted p-4 py-5">
+                <span className="font-bold">Expenses</span>{" "}
+                {formatCurrency(totals.expense)}
               </li>
-              <li>
-                Smallest Category:{" "}
-                {sumOfSpend?.labels[sumOfSpend?.labels.length - 1]} ($
-                {sumOfSpend?.datasets[0]?.data[sumOfSpend?.labels.length - 1]})
-              </li>
-              <li>
-                Average Spend: ${calcAverage(sumOfSpend?.datasets[0]?.data)}
+              <li className="flex h-16 flex-col items-center justify-center rounded-r-lg bg-muted p-4 py-5">
+                <span className="font-bold">Net</span>{" "}
+                {formatCurrency(totals.income - totals.expense)}
               </li>
             </ul>
+          )}
+        </div>
+        <div className="w-full py-5">
+          <div className="mb-4 flex items-end gap-4">
+            <h2 className="w-full text-2xl font-bold">Change in Net Worth</h2>
+            <div>
+              <Select onValueChange={(e) => setLineChartMonths(parseInt(e))}>
+                <SelectTrigger>
+                  {lineChartMonths} month history
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="3">3 month history</SelectItem>
+                  <SelectItem value="6">6 month history</SelectItem>
+                  <SelectItem value="12">12 month history</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
+        </div>
+        <div className="w-full py-5">
+          <ChartContainer config={lineChartConfig}
+            className="max-h-[500px] min-h-[200px] w-full"
+          >
+            <LineChart data={netWrothLineChartData ?? undefined}>
+              <CartesianGrid vertical={false} />
+              <XAxis dataKey="month" tickLine={false} />
+              <YAxis axisLine={false} tickCount={8} />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent hideLabel />}
+              />
+              <Line
+                dataKey="balance"
+                color="var(--color-balance)"
+                dot={{
+                  fill: "var(--color-balance)",
+                }}
+                type="natural"
+              />
+            </LineChart>
+          </ChartContainer>
         </div>
       </div>
     </>

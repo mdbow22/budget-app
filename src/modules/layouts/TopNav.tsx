@@ -28,7 +28,6 @@ const TopNav: React.FC<{
       }[]
     | undefined;
 }> = ({ data }) => {
-
   return (
     <nav className="hidden h-14 w-full items-center bg-muted px-4 py-2 shadow shadow-zinc-400/30 lg:flex">
       <h2 className="text-2xl font-bold text-accent">Balanced Budget</h2>
@@ -58,7 +57,7 @@ const TopNav: React.FC<{
           </DropdownMenuContent>
         </DropdownMenu>
         <div className="rounded px-3 py-1 text-lg font-bold text-foreground hover:bg-foreground/20">
-          Reports
+          <Link href="reports">Reports</Link>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger className="rounded px-3 py-1 text-lg font-bold text-foreground hover:bg-foreground/20">
