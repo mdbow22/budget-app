@@ -60,7 +60,6 @@ const TransactionRowNew: React.FC<TransactionRowProps> = ({
     onSuccess: async () => {
       await queryContext.transactions.getAccountTransactions.invalidate();
       await queryContext.accounts.getAllAccounts.invalidate();
-      await queryContext.charts.getAccountLineChart.invalidate();
       setEditMode(false);
       setLoading(false);
     },

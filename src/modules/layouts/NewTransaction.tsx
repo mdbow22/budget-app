@@ -72,8 +72,9 @@ const NewTransaction: React.FC<TransModalProps> = ({ accounts }) => {
   const newTransaction = api.transactions.insertTransaction.useMutation({
     onSuccess: async () => {
       await context.transactions.getRecentTransactions.invalidate();
-      await context.charts.getDashboardChartData.invalidate();
-      await context.charts.getDashboardLineChartData.invalidate();
+      await context.reports.incomeExpenseBarChart.invalidate();
+      await context.reports.monthlyCatSpendPieChart.invalidate();
+      await context.reports.netWorthChangeLineChart.invalidate();
       await context.accounts.getAllAccounts.invalidate();
       await context.transactions.getAccountTransactions.invalidate()
     },

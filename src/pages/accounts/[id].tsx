@@ -64,16 +64,6 @@ const AccountPage: NextPageWithLayout = () => {
       }
     );
 
-  // const { data: chartData } =
-  //   api.charts.getAccountLineChart.useQuery(
-  //     {
-  //       accountId: parseInt(query.id as string),
-  //     },
-  //     {
-  //       enabled: !!query.id,
-  //     }
-  //   );
-
   const handleModalOpen = (trans: DeleteTransaction) => {
     setOpen(true);
     setTransToDel(trans);
@@ -82,7 +72,6 @@ const AccountPage: NextPageWithLayout = () => {
   const deleteMutation = api.transactions.deleteTransaction.useMutation({
     onSuccess: async () => {
       await context.accounts.getAllAccounts.invalidate();
-      await context.charts.getAccountLineChart.invalidate();
       await context.transactions.getAccountTransactions.refetch();
     },
   });

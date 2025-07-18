@@ -49,8 +49,8 @@ const NewTransModal = React.forwardRef<HTMLDialogElement, TransModalProps>(
     const newTransaction = api.transactions.insertTransaction.useMutation({
       onSuccess: async () => {
         await context.transactions.getRecentTransactions.invalidate();
-        await context.charts.getDashboardChartData.invalidate();
-        await context.charts.getDashboardLineChartData.invalidate();
+        // await context.charts.getDashboardChartData.invalidate();
+        // await context.charts.getDashboardLineChartData.invalidate();
         await context.accounts.getAllAccounts.invalidate();
       },
     });

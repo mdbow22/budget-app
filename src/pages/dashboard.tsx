@@ -34,20 +34,6 @@ const Dashboard: NextPageWithLayout = () => {
   const { data: recentTrans, isLoading } =
     api.transactions.getRecentTransactions.useQuery();
 
-  const { data: chart } = api.charts.getDashboardChartData.useQuery();
-
-  const totalIncome = chart?.datasets[0]?.data.length
-    ? Math.floor(
-        chart.datasets[0]?.data.reduce((prev, curr) => prev + curr) * 100
-      ) / 100
-    : 0.0;
-  const totalExpenses = chart?.datasets[1]?.data.length
-    ? Math.floor(
-        chart.datasets[1]?.data.reduce((prev, curr) => prev + curr) * 100
-      ) / 100
-    : 0.0;
-  const totalNet = Math.floor((totalIncome - totalExpenses) * 100) / 100;
-
   if (!accounts?.length && !accountLoading && isSuccess) {
     return <>
       <h2 className="text-center text-xl font-bold mt-10">You have 0 Accounts Set Up</h2>
@@ -102,23 +88,6 @@ const Dashboard: NextPageWithLayout = () => {
       </div>
       <div className=" w-full  px-5 md:flex-row">
         <CategorySpendPieChart />
-      </div>
-      <div className="p-3">
-        {chart && (
-          <ul className="flex justify-center rounded-lg">
-            <li className="flex h-16 flex-col items-center justify-center rounded-l-lg border-r border-foreground/50 bg-muted p-4 py-5">
-              <span className="font-bold">Income</span>
-              <span>{formatCurrency(totalIncome)}</span>
-            </li>
-            <li className="flex h-16 flex-col items-center justify-center border-r border-foreground/50 bg-muted p-4 py-5">
-              <span className="font-bold">Expenses</span>{" "}
-              {formatCurrency(totalExpenses)}
-            </li>
-            <li className="flex h-16 flex-col items-center justify-center rounded-r-lg bg-muted p-4 py-5">
-              <span className="font-bold">Net</span> {formatCurrency(totalNet)}
-            </li>
-          </ul>
-        )}
       </div>
       <div className="px-5 pb-5">
         <h2 className="pb-2 text-lg font-bold">Most Recent Transactions</h2>
