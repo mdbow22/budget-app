@@ -23,9 +23,6 @@ export const monthlySpendPieChart = async (context: MonthlySpendPieChartType) =>
         }
     })
 
-    console.log(month);
-    console.log(accounts);
-
     const sumOfSpend = await ctx.prisma.transaction.groupBy({
         _sum: {
           amount: true,
