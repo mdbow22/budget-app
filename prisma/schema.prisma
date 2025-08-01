@@ -127,4 +127,16 @@ model Budget {
     reset           String      //monthly, quarterly, annually, biannually (2x year)
     start           DateTime    @db.Date
     lastResetDate   DateTime    @db.Date
+    expired         DateTime?   @db.Date    //date budget stopped or null if still active
+    BudgetHx        BudgetHx[]  
+}
+
+model BudgetHx {
+    id              Int         @id @default(autoincrement())
+    budget          Int         
+    max             Int         //max spend allowed for this period
+    actual          Decimal     @db.Decimal(20, 2) //actual spend for that period
+    start           DateTime    @db.Date //start date of period
+    end             DateTime    @db.Date //end date of period
+    Budget          Budget      @relation(fields: [budget], references: [id])
 }
