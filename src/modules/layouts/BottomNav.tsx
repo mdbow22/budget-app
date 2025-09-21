@@ -4,6 +4,7 @@ import {
   Home,
   List,
   Settings,
+  DollarSign,
 } from "../../../node_modules/lucide-react";
 import type { Decimal } from "@prisma/client/runtime/library";
 import Link from "next/link";
@@ -34,7 +35,9 @@ const BottomNav: React.FC<BottomNavProps> = ({ data }) => {
   const linkClick = (route?: string) => {
     setShowAccounts(false);
     if (route) {
-      router.push(route).catch((err) => console.error('redirect failed: ', err));
+      router
+        .push(route)
+        .catch((err) => console.error("redirect failed: ", err));
     }
   };
 
@@ -79,7 +82,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ data }) => {
           })}
         </ul>
       </section>
-      <nav className="fixed bottom-0 left-0 grid h-16 w-full grid-cols-4 justify-around bg-muted p-3 text-accent lg:hidden">
+      <nav className="fixed bottom-0 left-0 grid h-16 w-full grid-cols-5 justify-around bg-muted p-3 text-accent lg:hidden">
         <button
           className="flex justify-center"
           onClick={() => {
@@ -89,7 +92,12 @@ const BottomNav: React.FC<BottomNavProps> = ({ data }) => {
           <Home size={36} />
         </button>
         {/* <Separator orientation='vertical' className='bg-foreground' /> */}
-        <button className={`flex justify-center`}>
+        <button
+          className={`flex justify-center`}
+          onClick={() => {
+            linkClick("/reports");
+          }}
+        >
           <PieChart size={36} />
         </button>
         {/* <Separator orientation='vertical' className='bg-foreground' /> */}
@@ -98,6 +106,14 @@ const BottomNav: React.FC<BottomNavProps> = ({ data }) => {
           onClick={() => setShowAccounts((prev) => !prev)}
         >
           <List size={36} />
+        </button>
+        <button
+          className={`flex justify-center`}
+          onClick={() => {
+            linkClick("/budgets");
+          }}
+        >
+          <DollarSign size={36} />
         </button>
         {/* <Separator orientation='vertical' className='bg-foreground' /> */}
         <button className="flex justify-center">

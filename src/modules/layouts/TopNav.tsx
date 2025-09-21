@@ -57,7 +57,10 @@ const TopNav: React.FC<{
           </DropdownMenuContent>
         </DropdownMenu>
         <div className="rounded px-3 py-1 text-lg font-bold text-foreground hover:bg-foreground/20">
-          <Link href="reports">Reports</Link>
+          <Link href="/reports">Reports</Link>
+        </div>
+        <div className="rounded px-3 py-1 text-lg font-bold text-foreground hover:bg-foreground/20">
+          <Link href="/budgets">Budgets</Link>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger className="rounded px-3 py-1 text-lg font-bold text-foreground hover:bg-foreground/20">
